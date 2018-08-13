@@ -31,7 +31,7 @@
                 return $key.'=:'.$key;
             },keys($params)));
 
-            $conditionKeys = implode(',',array_map(function($key){
+            $conditionKeys = implode(' and ',array_map(function($key){
                 return $key.'=:c'.$key;
             },keys($conditions)));
 
@@ -49,7 +49,7 @@
             $table = self::get_table();
 
 
-            $conditionKeys = implode(',',array_map(function($key){
+            $conditionKeys = implode(' and ',array_map(function($key){
                 return $key.'=:'.$key;
             },keys($conditions)));
 
@@ -74,7 +74,7 @@
 
             $table = self::get_table();
 
-            $conditionKeys = implode(',',array_map(function($key){
+            $conditionKeys = implode(' and ',array_map(function($key){
                 return $key.'=:'.$key;
             },keys($conditions)));
 
