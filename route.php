@@ -11,6 +11,10 @@
             self::process("post",$url,$action);
         }
 
+        static function put($url,$action){
+            self::process("put",$url,$action);
+        }
+
         static function patch($url,$action){
             self::process("patch",$url,$action);
         }
