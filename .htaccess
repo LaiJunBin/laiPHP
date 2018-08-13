@@ -1,0 +1,5 @@
+Options +FollowSymlinks
+
+RewriteEngine On
+
+RewriteRule ^.*$ controller.php [nc,qsa]

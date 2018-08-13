@@ -1,0 +1,38 @@
+/* CSS File */
+
+body {
+    padding: 0;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(white, rgba(51, 153, 255, .5));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-size: 100px;
+    font-weight: 800;
+    color: #333;
+    user-select: none;
+}
+
+body>div:last-child {
+    font-size: 20px;
+    margin: 15px;
+}
+
+.btn {
+    text-decoration: none;
+    color: #fff;
+    border: 0;
+    background: #39f;
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: background 2s, padding .2s;
+}
+
+.btn:hover {
+    background: radial-gradient(#39f, rgba(51, 153, 255, .9));
+    padding: 8px 10px;
+}
