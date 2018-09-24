@@ -19,14 +19,17 @@
     for($i=0;$i<min(count($url),count($except_url));$i++){
         if($url[$i] == $except_url[$i])
             $url[$i] = '';
+        else{
+            code(404);
+            exit;
+        }
     }
 
     clearEmpty($url);
     $url_count = count($url);
-
     $url = implode('/',$url);
 
-    if(!preg_match("/^public\/*/",$url) && !Route::hasUri($url)){
+    if(!preg_match("/^public\/*/",strtolower($url)) && !Route::hasUri($url)){
         code(404);
         exit;
     }
