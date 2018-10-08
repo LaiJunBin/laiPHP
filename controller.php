@@ -29,7 +29,7 @@
     $url_count = count($url);
     $url = implode('/',$url);
 
-    if(!preg_match("/^public\/*/",strtolower($url)) && !Route::hasUri($url)){
+    if(!preg_match("/^public\/*/",strtolower($url)) && !Route::hasUri($url,$method)){
         code(404);
         exit;
     }
