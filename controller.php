@@ -20,7 +20,7 @@
         if($url[$i] == $except_url[$i])
             $url[$i] = '';
         else{
-            code(404);
+            Response()->code(404);
             exit;
         }
     }
@@ -30,21 +30,29 @@
     $url = implode('/',$url);
 
     if(!preg_match("/^public\/*/",strtolower($url)) && !Route::hasUri($url,$method)){
-        code(404);
+        Response()->code(404);
         exit;
     }
 
     $contains_page = false;
-
     foreach(Route::$routes[$method] ?? [] as $route){
         if($url_count == $route['len'] && preg_match($route['pattern'],$url,$matches)){
             include('app/controller/'.$route['script'].'.php');
             $values = array_map(function($value){
                 return '"'.$value.'"';
             },array_slice($matches,1));
+
             $value = implode(',',$values);
-            $functionText = "{$route['function']}({$value});";
-            eval($functionText);
+
+            try {
+                $functionText = "{$route['function']}({$value});";
+                eval($functionText);
+            } catch (\TypeError $th) {
+                if($value !== "") $value = ', '.$value;
+                $functionText = "{$route['function']}(new Request() {$value});";
+                eval($functionText);
+            }
+
             $contains_page = true;
             break;
         }
@@ -55,6 +63,6 @@
             header('Content-Type:'.get_mime_type($url));
             echo file_get_contents($url);
         }else{
-            code(404);
+            Response()->code(404);
         }
     }
