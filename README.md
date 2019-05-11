@@ -42,10 +42,32 @@ values(array)             | 回傳陣列的values
 containsKey(array,key)    | 判斷陣列中是否存在索引為key
 contains(array,data)      | 判斷陣列中是否存在資料為data
 clearEmpty(array)         | 清除陣列中所有空的元素
+Response(res=null)        | 產生Response()物件
+get_mime_type($filename)  | 取得檔案的mime type
+
+> request.php
+
+Request 物件
+
+Action Name              | Description
+--------------|------
+status                    | 取得Http Response Code
+method                    | 取得 方法 GET POST ....
+get(array,data)           | 取得GET資料
+post(array)               | 取得POST資料
+json(array,key)           | 取得JSON資料
+all(array)                | 依順序回傳第一個非空的資料，順序為JSON,POST,GET
+
+> response.php
+
+Response 物件
+
+Action Name              | Description
+--------------|------
+json(json_data)           | json response
 code(code)                | 設定http_response_code
 redirect(url)             | 轉址
 view(file,params=[])      | 顯示views中的文件，也可以傳入參數
-get_mime_type($filename)  | 取得檔案的mime type
 
 > DB 使用
 
