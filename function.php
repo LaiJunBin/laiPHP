@@ -6,6 +6,7 @@
         foreach($params as $param){
             var_dump($param);
         }
+        exit;
     }
 
     function keys($array){
@@ -30,28 +31,9 @@
         }));
     }
 
-    function code($code){
-        http_response_code($code);
+    function Response($res=null){
+        return new Response($res);
     }
-
-    function redirect($url){
-        $url = explode('/',$url);
-        clearEmpty($url);
-        $url = implode('/',$url);
-
-        header("location:{$url}");
-    }
-
-    function view($file,$params=[]){
-        foreach($params as $key =>$value){
-            $$key = $value;
-        }
-        $file = str_replace('.','/',$file);
-        $filename = glob("./app/views/{$file}*")[0];
-
-        require($filename);
-    }
-
 
     function get_mime_type($filename) {
         $idx = explode('.', $filename );
