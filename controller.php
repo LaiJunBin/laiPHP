@@ -13,15 +13,20 @@
     $method = strtolower($_SERVER['REQUEST_METHOD']);
 
     $except_url = explode('/',str_replace($root,'',$current_dir));
+    $is_cli_server = php_sapi_name() == 'cli-server';
+
     clearEmpty($url);
     clearEmpty($except_url);
 
-    for($i=0;$i<min(count($url),count($except_url));$i++){
-        if($url[$i] == $except_url[$i])
-            $url[$i] = '';
-        else{
-            Response()->code(404);
-            exit;
+    if(!$is_cli_server){
+
+        for($i=0;$i<min(count($url),count($except_url));$i++){
+            if($url[$i] == $except_url[$i])
+                $url[$i] = '';
+            else{
+                Response()->code(404);
+                exit;
+            }
         }
     }
 
@@ -54,6 +59,7 @@
             }
 
             $contains_page = true;
+            Response()->log(200);
             break;
         }
     }
