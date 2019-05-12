@@ -100,3 +100,5 @@ DATA_BASE | 資料庫名稱
 USER_NAME | 資料庫帳號
 PASS_WORD | 資料庫密碼
 
+## License
+[MIT](https://github.com/LaiJunBin/PHP_Framework/blob/master/LICENSE)
