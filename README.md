@@ -83,6 +83,7 @@ Method           | Description
 Example::create([key=>value,...])  | 對Example表新增資料
 Example::update([key=>value,...],[condition=>value,...])  | 對Example表修改資料
 Example::delete([condition=>value,...])  | 對Example表刪除資料
+Example::get([orderby=>value,...])  | 取得Example表所有資料
 Example::find([condition=>value,...])  | 對Example表尋找資料(一筆)
 Example::findall([condition=>value,...])  | 對Example表尋找資料(全部)
 Example::contains([condition=>value,...])  | 對Example表尋找資料(回傳是否存在)
