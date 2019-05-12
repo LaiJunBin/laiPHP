@@ -58,6 +58,10 @@
             self::bindAll($sql,$conditions);
         }
 
+        static function get($orderby=null){
+            return self::select([],$orderby)->fetchAll(PDO::FETCH_ASSOC);
+        }
+
         static function find($conditions,$orderby=null){
             return self::select($conditions,$orderby)->fetch(PDO::FETCH_ASSOC);
         }
@@ -73,12 +77,15 @@
         static function select($conditions,$orderby=null){
 
             $table = self::get_table();
+            $sql = "select * from {$table}";
 
-            $conditionKeys = implode(' and ',array_map(function($key){
-                return $key.'=:'.$key;
-            },keys($conditions)));
+            if(count($conditions) > 0){
+                $conditionKeys = implode(' and ',array_map(function($key){
+                    return $key.'=:'.$key;
+                },keys($conditions)));
 
-            $sql = "select * from {$table} where {$conditionKeys}";
+                $sql .= " where {$conditionKeys}";
+            }
 
             if($orderby !=null){
                 $by = implode(' ',array_map(function($key) use($orderby){
