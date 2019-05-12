@@ -11,8 +11,9 @@
             return $this;
         }
 
-        public function code($code){
+        public function code($code=200){
             http_response_code($code);
+            $this->log($code);
             return $this;
         }
 
@@ -20,6 +21,7 @@
             foreach($params as $key =>$value){
                 $$key = $value;
             }
+
             $file = str_replace('.','/',$file);
             $filename = glob("./app/views/{$file}*");
 
@@ -37,5 +39,13 @@
 
             header("location:{$url}");
             return $this;
+        }
+
+        public function log($status_code=200){
+            $addr = $_SERVER['REMOTE_ADDR'];
+            $port = $_SERVER['REMOTE_PORT'];
+            $request_uri = $_SERVER['REQUEST_URI'];
+            $log = $addr.':'.$port.' ['.$status_code.']: '.$request_uri;
+            error_log($log);
         }
     }
