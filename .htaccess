@@ -2,4 +2,4 @@ Options +FollowSymlinks
 
 RewriteEngine On
 
-RewriteRule ^.*$ controller.php [nc,qsa]
+RewriteRule ^.*$ public/index.php [nc,qsa]
