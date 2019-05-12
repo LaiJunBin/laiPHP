@@ -8,7 +8,7 @@
         function __get($name) {
             if($name === 'status')
                 return $this->__status;
-            else if($name == 'method')
+            else if($name === 'method')
                 return $this->__method;
 
             user_error("Invalid property: " . __CLASS__ . "->$name");
@@ -18,7 +18,7 @@
         }
 
         public function __construct() {
-            $this->__status = $_SERVER['REDIRECT_STATUS'];
+            $this->__status = $_SERVER['REDIRECT_STATUS'] ?? 200;
             $this->__method = $_SERVER['REQUEST_METHOD'];
         }
 
