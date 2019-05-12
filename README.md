@@ -18,7 +18,7 @@ app/controller：存放控制器，處理邏輯
 
 app/views：存放畫面，目前還沒有模板引擎
 
-autoload：自動載入的類別，目前只有處理DB與Route的類別
+autoload：自動載入的類別
 
 public：對外公開的檔案，可以在外部直接輸入網址讀取
 
@@ -30,7 +30,7 @@ function.php 常用方法寫在這個檔案中，整個程式都可以使用
 
 ---
 
-## 部分檔案說明
+## 說明
 
 > function.php
 
@@ -65,9 +65,16 @@ Response 物件
 Action Name              | Description
 --------------|------
 json(json_data)           | json response
-code(code)                | 設定http_response_code
+code(code=200)            | 設定http_response_code
 redirect(url)             | 轉址
 view(file,params=[])      | 顯示views中的文件，也可以傳入參數
+log(status_code=200)      | 在主控台打印Response Log
+
+> 命令使用
+
+Command                  | Description
+--------------|------
+php lai serv           | 啟動測試伺服器
 
 > DB 使用
 
