@@ -1,0 +1,15 @@
+<?php
+    include_once('env.php');
+
+    if($argv[1] == 'serv'){
+        $host = HOST;
+        $port = PORT;
+        spawnBackgroundProcess("PHP -S {$host}:{$port} public/index.php");
+    }
+
+    function spawnBackgroundProcess($sProcessLine)
+    {
+        $aPipes = array();
+        $rProcess = proc_open($sProcessLine, array(), $aPipes);
+        proc_close($rProcess);
+    }
