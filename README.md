@@ -1,4 +1,4 @@
-# Framework
+# PHP Framework
 
 > 使用範例：　[todolist](https://github.com/LaiJunBin/PHP_TodoList)
 
@@ -96,6 +96,7 @@ Example::contains([condition=>value,...])  | 對Example表尋找資料(回傳是
 Const           | Description
 --------------|------
 HOST | 伺服器位置，如localhost
+PORT | Port
 DATA_BASE | 資料庫名稱
 USER_NAME | 資料庫帳號
 PASS_WORD | 資料庫密碼
