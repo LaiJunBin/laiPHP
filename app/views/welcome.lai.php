@@ -9,7 +9,14 @@
 </head>
 <body>
     <div>
-        Welcome <?php echo $id ?? null?>
+        @for ($i = 0; $i < $count; $i++){
+            @if(true){
+                <div>Welcome {{ $id }}</div>
+            }
+        }
+
+
+
     </div>
     <div>
         <a href="https://github.com/xyz607xx/framework" class="btn">View Source</a>
