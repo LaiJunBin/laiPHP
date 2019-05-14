@@ -9,14 +9,7 @@
 </head>
 <body>
     <div>
-        @for ($i = 0; $i < $count; $i++){
-            @if(true){
-                <div>Welcome {{ $id }}</div>
-            }
-        }
-
-
-
+        Welcome {{ $id }}
     </div>
     <div>
         <a href="https://github.com/xyz607xx/framework" class="btn">View Source</a>
