@@ -35,7 +35,14 @@
                 }
             }
             self::_decrypt($html_array, $params);
+
             $html_text = implode(' ', $html_array);
+            preg_match_all('/{{\s+([^}]*)\s+}}/', $html_text, $matches);
+            for($i = 0; $i < count($matches[0]); $i++){
+                $syntax = "return {$matches[1][$i]};";
+                $html_text = str_replace($matches[0][$i], htmlspecialchars(eval($syntax)), $html_text);
+            }
+
             return $html_text;
         }
 
