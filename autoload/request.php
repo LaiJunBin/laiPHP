@@ -39,4 +39,11 @@
         public function post(){
             return $_POST;
         }
+
+        public function headers($key=null){
+            if($key !== null)
+                return apache_request_headers()[$key];
+
+            return apache_request_headers();
+        }
     }
