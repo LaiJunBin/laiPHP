@@ -91,6 +91,96 @@ Example::find([condition=>value,...])  | 對Example表尋找資料(一筆)
 Example::findall([condition=>value,...])  | 對Example表尋找資料(全部)
 Example::contains([condition=>value,...])  | 對Example表尋找資料(回傳是否存在)
 
+
+## Template Engine
+
+檔名.php => 檔名.lai.php 即可使用模板引擎的語法，目前提供以下幾種
+
+假設$data = 100
+
+<table>
+   <thead>
+      <tr>
+         <th>Syntax</th>
+         <th>Result</th>
+         <th>Description</th>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td>{{ $data }}</td>
+         <td>100</td>
+         <td>輸出 $data 變數的值</td>
+      </tr>
+      <tr>
+      <td>
+
+```
+@for ($i = 1; $i <= 3; $i++){
+   <div>{{ $i }}</div>
+}
+
+```
+<br>
+      </td>
+      <td>
+
+```
+<div>1</div>
+<div>2</div>
+<div>3</div>
+```
+<br>
+      </td>
+      <td>for 迴圈</td>
+      </tr>
+      <tr>
+      <td>
+
+```
+if($data == 100){
+   <div>Test</div>
+}
+
+```
+<br>
+      </td>
+      <td>
+
+```
+<div>Test</div>
+```
+<br>
+      </td>
+      <td>if 判斷</td>
+      </tr>
+      <tr>
+      <td>
+
+```
+@if($count==3 && false){
+   <div>Count = 3</div>
+}else{
+   <div>Hello!!!</div>
+}
+
+```
+<br>
+      </td>
+      <td>
+
+```
+<div>Hello!!!</div>
+```
+<br>
+      </td>
+      <td>if-else 判斷</td>
+      </tr>
+   </tbody>
+</table>
+
+目前 if(條件) 條件中並不支援出現for迴圈的控制變數，否則會產生錯誤！
+
 > env.php
 
 Const           | Description
