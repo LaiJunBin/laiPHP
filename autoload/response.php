@@ -18,43 +18,19 @@
         }
 
         public function view($file,$params=[]){
-            foreach($params as $key =>$value){
-                $$key = $value;
-            }
 
             $file = str_replace('.','/',$file);
             $filenames = glob("./app/views/{$file}.lai.php");
-
-            // require($filenames[0]);
-            // return $this;
 
             if(count($filenames) == 0){
                 $filenames = glob("./app/views/{$file}.php");
                 require($filenames[0]);
                 return $this;
             } else {
-                echo "<!DOCTYPE html>";
-                header('Content-Type: text/plain');
-                // header('Content-Type: text/html;charset=UTF-8');
-                $html_text = file_get_contents($filenames[0]);
-                preg_match_all('/{{\s+([^}]*)\s+}}/', $html_text, $matches);
-                for($i = 0; $i < count($matches[0]); $i++){
-                    $html_text = str_replace($matches[0][$i], htmlspecialchars(eval("return {$matches[1][$i]};")), $html_text);
-                }
+                header('Content-Type: text/html;charset=UTF-8');
+                // header('Content-Type: text/plain');
+                $html_text = Lai::decryptFile($filenames[0], $params);
 
-                preg_match_all('/@([^{]*{([^}]*)})/', $html_text, $expressions);
-                while(count($expressions[0]) > 0){
-                    $temp = '';
-                    $expressions[1][0] = str_replace($expressions[2][0], "\$temp .= \"{$expressions[2][0]}\";", $expressions[1][0]);
-                    dd($expressions);
-                    eval($expressions[1][0]);
-                    $html_text = str_replace($expressions[0][0], $temp, $html_text);
-                    preg_match_all('/@([^{]*{([^}]*)})/', $html_text, $expressions);
-                    dd($expressions);
-                }
-                $dom = DomDocument::loadHtml($html_text);
-                $shtml = simplexml_import_dom($dom);
-                $html_text = $shtml->asxml();
                 echo $html_text;
                 return $this;
             }
