@@ -138,7 +138,7 @@ Example::contains([condition=>value,...])  | 對Example表尋找資料(回傳是
       <td>
 
 ```
-if($data == 100){
+@if($data == 100){
    <div>Test</div>
 }
 
