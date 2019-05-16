@@ -2,19 +2,70 @@
 
     class Lai {
         public static function decryptFile($filename, $params) {
-            foreach($params as $key =>$value){
-                $$key = $value;
-            }
-
             $html_array = [];
             $html_file = fopen($filename, 'r');
             while(($line = fgets($html_file)) !== false){
                 $html_array[] = $line;
             }
             fclose($html_file);
-            for($i = 0; $i < count($html_array); $i++){
+            
+            self::_decrypt_for_expression($html_array, $params);
+            self::_decrypt_if_expression($html_array, $params);
+            self::_decrypt($html_array, $params);
 
+            $html_text = implode(' ', $html_array);
+            preg_match_all('/{{\s*([^}]*)\s*}}/', $html_text, $matches);
+
+            for($i = 0; $i < count($matches[0]); $i++){
+                $syntax = "return {$matches[1][$i]};";
+                $html_text = str_replace($matches[0][$i], htmlspecialchars(eval($syntax)), $html_text);
+            }
+
+            return $html_text;
+        }
+
+        private static function _decrypt_for_expression(&$html_array, $params){
+            foreach($params as $key =>$value){
+                $$key = $value;
+            }
+
+            for($i = 0; $i < count($html_array); $i++){
+                if(mb_strpos(trim($html_array[$i]), '@for') === 0){
+                    $stack = [];
+                    for($j = $i; $j < count($html_array); $j++){
+                        preg_match_all('/{/', $html_array[$j], $left);
+                        if(count($left[0]) > 0)
+                            array_push($stack, ...$left[0]);
+                        
+                        preg_match_all('/}/', $html_array[$j], $right);
+                        array_splice($stack, 0, count($right[0]));
+
+                        if(count($stack) == 0){
+                            $condition = self::get_condition($html_array[$i]);
+                            list($start, $end) = [$i, $j];
+                            $temp = array_slice($html_array, $i+1, $j-$i-1);
+                            $array = [];
+                            $index_variable = mb_substr($condition, 0, mb_strpos($condition, '=')-1);
+                            $syntax = ('for('.$condition.'){ $params[mb_substr($index_variable,1)] = '.$index_variable.'; array_push($array, ...self::for_assign_variable($temp, $params, $index_variable)); }');
+                            eval($syntax);
+                            array_splice($html_array, $start, $end-$start+1, $array);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        private static function _decrypt_if_expression(&$html_array, $params){
+            
+            foreach($params as $key =>$value){
+                $$key = $value;
+            }
+
+            for($i = 0; $i < count($html_array); $i++){
+                // convert if else to if + if
                 if(preg_match('/}\s*else\s*{/', $html_array[$i])){
+                
                     $stack = [];
                     for($j = $i-1; $j >= 0; $j--){
                         if(mb_strpos(trim($html_array[$j]),'}') === 0){
@@ -33,17 +84,47 @@
                         }
                     }
                 }
-            }
-            self::_decrypt($html_array, $params);
 
-            $html_text = implode(' ', $html_array);
-            preg_match_all('/{{\s+([^}]*)\s+}}/', $html_text, $matches);
-            for($i = 0; $i < count($matches[0]); $i++){
-                $syntax = "return {$matches[1][$i]};";
-                $html_text = str_replace($matches[0][$i], htmlspecialchars(eval($syntax)), $html_text);
+                // convert else if to if > if
+                if(preg_match('/}\s*else if\s*(.*){/', $html_array[$i])){
+                    $stack = [];
+                    for($j = $i-1; $j >= 0; $j--){
+                        if(mb_strpos(trim($html_array[$j]),'}') === 0){
+                            array_push($stack, '}');
+                            continue;
+                        }
+                        if(mb_strpos(trim($html_array[$j]),'@if') === 0){
+                            if(count($stack) == 0){
+                                $condition = self::get_condition($html_array[$j]);
+                                $condition2 = self::get_condition($html_array[$i]);
+                                $array = ['}', "@if(!({$condition})){"];
+                                $array2 = ["@if({$condition2}){"];
+                                array_splice($html_array, $i+1,0,$array2);
+                                array_splice($html_array, $i, 1, $array);
+                                $stack = [];
+                                for($k = $i+2; $k < count($html_array); $k++){
+                                    preg_match_all('/{/', $html_array[$k], $left);
+                                    if(count($left[0]) > 0)
+                                        array_push($stack, ...$left[0]);
+                                    
+                                    preg_match_all('/}/', $html_array[$k], $right);
+                                    array_splice($stack, 0, count($right[0]));
+
+                                    if(count($stack) == 0){
+                                        array_splice($html_array, $k+1, 0, '}');
+                                        break;
+                                    }
+                                }
+
+                                break;
+                            }else{
+                                array_pop($stack);
+                            }
+                        }
+                    }
+                }
             }
 
-            return $html_text;
         }
 
         private static function get_expression($html_text){
@@ -136,7 +217,7 @@
             $html_array[$left] = implode(' ',$array);
         }
 
-        private static function for_assign_variable($temp, $params){
+        private static function for_assign_variable($temp, $params, $index_variable){
             foreach($params as $key =>$value){
                 $$key = $value;
             }
@@ -144,10 +225,15 @@
             $array = [];
             for($params['for1'] = 0; $params['for1'] < count($temp); $params['for1']++){
                 preg_match_all('/{{\s+([^}]*)\s+}}/', $temp[$params['for1']], $matches);
-                $array[$params['for1']] = $temp[$params['for1']];
-                for($params['for2'] = 0; $params['for2'] < count($matches[0]); $params['for2']++){
-                    $syntax = "return {$matches[1][$params['for2']]};";
-                    $array[$params['for1']] = str_replace($matches[0][$params['for2']], htmlspecialchars(eval($syntax)), $array[$params['for1']]);
+
+                if(preg_match('/\\'.$index_variable.'\W/', $temp[$params['for1']])){
+                    if(is_string($params[mb_substr($index_variable,1)])){
+                        $array[$params['for1']] = preg_replace('/\\'.$index_variable.'/', $params[mb_substr($index_variable,1)], $temp[$params['for1']]);
+                    }else{
+                        $array[$params['for1']] = preg_replace('/\\'.$index_variable.'/', '\''.$params[mb_substr($index_variable,1)].'\'', $temp[$params['for1']]);
+                    }
+                }else{
+                    $array[$params['for1']] = $temp[$params['for1']];
                 }
             }
 
