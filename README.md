@@ -96,7 +96,9 @@ Example::contains([condition=>value,...])  | 對Example表尋找資料(回傳是
 
 檔名.php => 檔名.lai.php 即可使用模板引擎的語法，目前提供以下幾種
 
-假設$data = 100
+假設
+* $data = 100
+* $items = ['a', 'b', 'c']
 
 <table>
    <thead>
@@ -133,6 +135,28 @@ Example::contains([condition=>value,...])  | 對Example表尋找資料(回傳是
 <br>
       </td>
       <td>for 迴圈</td>
+      </tr>
+
+<td>
+
+```
+@foreach ($items as $item){
+   <div>{{ $item }}</div>
+}
+
+```
+<br>
+      </td>
+      <td>
+
+```
+<div>a</div>
+<div>b</div>
+<div>c</div>
+```
+<br>
+      </td>
+      <td>foreach 迴圈</td>
       </tr>
       <tr>
       <td>
@@ -175,6 +199,63 @@ Example::contains([condition=>value,...])  | 對Example表尋找資料(回傳是
 <br>
       </td>
       <td>if-else 判斷</td>
+      </tr>
+      <tr>
+      <td>
+
+```
+@extends(layout)
+```
+<br>
+      </td>
+      <td>
+
+```
+layout.lai.php 檔案中的內容
+```
+<br>
+      </td>
+      <td>模板繼承</td>
+      </tr>
+      <tr>
+      <td>
+
+```
+@yield(title, 'welcome')
+@yield(main)
+```
+<br>
+      </td>
+      <td>
+
+```
+title預設值為welcome，可以被section填入
+設定main的欄位給section填入
+```
+<br>
+      </td>
+      <td>設定欄位</td>
+      </tr>
+      <tr>
+      <td>
+
+```
+@section(title, 'use section set title')
+@section(main){
+   <div>main</div>
+}
+```
+<br>
+      </td>
+      <td>
+
+```
+將yield的title設定為 use section set title
+將yield(main)取代為<div>main</div>
+```
+<br>
+      </td>
+      <td>填入yield</td>
       </tr>
    </tbody>
 </table>
