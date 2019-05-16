@@ -1,6 +1,6 @@
 # PHP Framework
 
-> 使用範例：　[todolist](https://github.com/LaiJunBin/laiPHP_TodoList)
+> 使用範例(API)：　[todolist](https://github.com/LaiJunBin/laiPHP_TodoList)
 
 ## 基本檔案目錄
 ```
@@ -60,6 +60,7 @@ get(array,data)           | 取得GET資料
 post(array)               | 取得POST資料
 json(array,key)           | 取得JSON資料
 all(array)                | 依順序回傳第一個非空的資料，順序為JSON,POST,GET
+headers(key=null)         | 回傳對應的header，如果key=null將回傳所有header
 
 > response.php
 
