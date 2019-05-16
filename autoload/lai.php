@@ -8,7 +8,7 @@
                 $html_array[] = $line;
             }
             fclose($html_file);
-            
+
             self::_decrypt_for_expression($html_array, $params);
             self::_decrypt_if_expression($html_array, $params);
             self::_decrypt($html_array, $params);
@@ -40,7 +40,7 @@
                         preg_match_all('/{/', $html_array[$j], $left);
                         if(count($left[0]) > 0)
                             array_push($stack, ...$left[0]);
-                        
+
                         preg_match_all('/}/', $html_array[$j], $right);
                         array_splice($stack, 0, count($right[0]));
 
@@ -49,7 +49,7 @@
                             list($start, $end) = [$i, $j];
                             $temp = array_slice($html_array, $i+1, $j-$i-1);
                             $array = [];
-                            $index_variable = mb_substr($condition, 0, mb_strpos($condition, '=')-1);
+                            $index_variable = trim(mb_substr($condition, 0, mb_strpos($condition, '=')));
                             $syntax = ('for('.$condition.'){ $params[mb_substr($index_variable,1)] = '.$index_variable.'; array_push($array, ...self::for_assign_variable($temp, $params, $index_variable)); }');
                             eval($syntax);
                             array_splice($html_array, $start, $end-$start+1, $array);
@@ -61,7 +61,7 @@
         }
 
         private static function _decrypt_if_expression(&$html_array, $params){
-            
+
             foreach($params as $key =>$value){
                 $$key = $value;
             }
@@ -69,7 +69,7 @@
             for($i = 0; $i < count($html_array); $i++){
                 // convert if else to if + if
                 if(preg_match('/}\s*else\s*{/', $html_array[$i])){
-                
+
                     $stack = [];
                     for($j = $i-1; $j >= 0; $j--){
                         if(mb_strpos(trim($html_array[$j]),'}') === 0){
@@ -110,7 +110,7 @@
                                     preg_match_all('/{/', $html_array[$k], $left);
                                     if(count($left[0]) > 0)
                                         array_push($stack, ...$left[0]);
-                                    
+
                                     preg_match_all('/}/', $html_array[$k], $right);
                                     array_splice($stack, 0, count($right[0]));
 
