@@ -9,7 +9,7 @@
 </head>
 <body>
     <div>
-        Welcome {{ $id }}
+        Welcome {{ $id ?? null }}
     </div>
     <div>
         <a href="https://github.com/xyz607xx/framework" class="btn">View Source</a>
