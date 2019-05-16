@@ -179,8 +179,6 @@ Example::contains([condition=>value,...])  | 對Example表尋找資料(回傳是
    </tbody>
 </table>
 
-目前 if(條件) 條件中並不支援出現for迴圈的控制變數，否則會產生錯誤！
-
 > env.php
 
 Const           | Description
