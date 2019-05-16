@@ -9,6 +9,9 @@
             }
             fclose($html_file);
 
+            self::_extends($html_array);
+            self::_yield($html_array, $params);
+            self::_section($html_array, $params);
             self::_decrypt_for_expression($html_array, $params);
             self::_decrypt_if_expression($html_array, $params);
             self::_decrypt($html_array, $params);
@@ -26,6 +29,87 @@
             }
 
             return $html_text;
+        }
+
+        private static function _extends(&$html_array){
+            $check_extends = true;
+            while($check_extends){
+                $check_extends = false;
+                for($i = 0; $i < count($html_array); $i++){
+                    if(mb_strpos(trim($html_array[$i]), '@extends') === 0){
+                        $check_extends = true;
+                        $extend_file = trim(self::get_condition($html_array[$i]),'\'');
+                        $template_dir = ['app', 'views'];
+                        array_push($template_dir, ...explode('.', $extend_file));
+                        $file = implode('/', $template_dir).'.lai.php';
+                        if(!file_exists($file)){
+                            throw new Error('extend template error!, template not found.');
+                        }
+                        $html_file = fopen($file, 'r');
+                        $array = [];
+                        while(($line = fgets($html_file)) !== false){
+                            $array[] = $line;
+                        }
+                        fclose($html_file);
+                        array_splice($html_array, $i, 1, $array);
+                        break;
+                        // $html_array = $array;
+                    }
+                }
+
+            }
+        }
+
+        private static function _yield(&$html_array, &$params){
+            for($i = 0; $i < count($html_array); $i++){
+                if(mb_strpos(trim($html_array[$i]), '@yield') !== false){
+                    $yield_name = self::get_condition($html_array[$i]);
+                    $variable = array_map(function($v){
+                        return trim(trim($v), '\'');
+                    }, explode(',', $yield_name));
+                    $html_array[$i] = preg_replace("/@yield\(".$variable[0]."[^)]*\)/", '{{ $yield_'. $variable[0]. ' }}', $html_array[$i]);
+                    if(count($variable) == 2){
+                        $params['yield_'.$variable[0]] = $variable[1];
+                    }
+                }
+            }
+        }
+
+        private static function _section(&$html_array, &$params){
+            for($i = 0; $i < count($html_array); $i++){
+                if(mb_strpos(trim($html_array[$i]), '@section') !== false){
+                    $section_name = self::get_condition($html_array[$i]);
+                    $variable = array_map(function($v){
+                        return trim(trim($v), '\'');
+                    }, explode(',', $section_name));
+                    if(count($variable) == 1){
+                        $stack = [];
+                        for($j = $i; $j < count($html_array); $j++){
+                            preg_match_all('/{/', $html_array[$j], $left);
+                            if(count($left[0]) > 0)
+                                array_push($stack, ...$left[0]);
+
+                            preg_match_all('/}/', $html_array[$j], $right);
+                            array_splice($stack, 0, count($right[0]));
+
+                            if(count($stack) == 0){
+                                $temp = array_slice($html_array, $i+1, $j-$i-1);
+                                array_splice($html_array, $i, $j-$i+1, []);
+
+                                for($k = 0; $k < count($html_array); $k++){
+                                    if(mb_strpos(trim($html_array[$k]), '{{ $yield_'.$section_name.' }}') !== false){
+                                        array_splice($html_array, $k, 1, $temp);
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }else if(count($variable) == 2){
+                        $params['yield_'.$variable[0]] = $variable[1];
+                    }
+                    array_splice($html_array, $i, 1, []);
+                }
+            }
         }
 
         private static function _decrypt_for_expression(&$html_array, $params){
