@@ -82,6 +82,7 @@
                     $variable = array_map(function($v){
                         return trim(trim($v), '\'');
                     }, explode(',', $section_name));
+
                     if(count($variable) == 1){
                         $stack = [];
                         for($j = $i; $j < count($html_array); $j++){
@@ -94,6 +95,7 @@
 
                             if(count($stack) == 0){
                                 $temp = array_slice($html_array, $i+1, $j-$i-1);
+
                                 array_splice($html_array, $i, $j-$i+1, []);
 
                                 for($k = 0; $k < count($html_array); $k++){
@@ -106,8 +108,8 @@
                         }
                     }else if(count($variable) == 2){
                         $params['yield_'.$variable[0]] = $variable[1];
+                        array_splice($html_array, $i, 1, []);
                     }
-                    array_splice($html_array, $i, 1, []);
                 }
             }
         }
