@@ -1,15 +1,168 @@
 <?php
     include_once('env.php');
 
-    if($argv[1] == 'serv'){
-        $host = HOST;
-        $port = PORT;
-        spawnBackgroundProcess("PHP -S {$host}:{$port} public/index.php");
-    }
-
     function spawnBackgroundProcess($sProcessLine)
     {
         $aPipes = array();
         $rProcess = proc_open($sProcessLine, array(), $aPipes);
         proc_close($rProcess);
     }
+
+    function get_file_full_path($base_path, $filename){
+        return implode('/', array_filter(explode('/', $base_path.$filename), function($data){
+            return $data != '';
+        })).'.php';
+    }
+
+    $command = new class {
+        private $commands = [];
+
+        public function create($command, $action){
+            $this->commands[$command] = $action;
+        }
+
+        public function execute(){
+            global $argv;
+
+            $command = implode(' ', array_slice($argv, 1));
+
+            foreach($this->commands as $pattern => $action){
+                if(preg_match($pattern, $command, $matches)){
+                    if($action(...array_slice($matches, 1)) === false)
+                        break;
+
+                    echo "command success.";
+                    exit;
+                }
+            }
+
+            echo 'error: Unknown command or arguments '.$command;
+        }
+
+    };
+
+    $command->create('/^serv$/', function(){
+        $host = HOST;
+        $port = PORT;
+        spawnBackgroundProcess("PHP -S {$host}:{$port} public/index.php");
+    });
+
+    $command->create('/^serv --port=(\S+)$/', function($port){
+        $host = HOST;
+        spawnBackgroundProcess("PHP -S {$host}:{$port} public/index.php");
+    });
+
+    $command->create('/^make:controller (\S+)$/', function($filename){
+        $base_path = './app/controller/';
+        $filepath = get_file_full_path($base_path, $filename);
+        if(file_exists($filepath))
+            error_log('error: file '.$filepath.' exists.');
+
+        $samplefile = 'samplefiles/controller.php';
+
+        if(!file_exists($samplefile))
+            return false;
+
+        copy($samplefile, $filepath);
+    });
+
+    $command->create('/^make:controller (\S+) --(\S+)$/', function($filename, $type){
+        $base_path = './app/controller/';
+        $filepath = get_file_full_path($base_path, $filename);
+        if(file_exists($filepath))
+            error_log('error: file '.$filepath.' exists.');
+
+        $samplefile = 'samplefiles/controller-'.$type.'.php';
+
+        if(!file_exists($samplefile))
+            return false;
+
+        copy($samplefile, $filepath);
+    });
+
+    $command->create('/^make:controller (\S+) --api --routing=(\S+)$/', function($filename, $routename){
+        $base_path = './app/controller/';
+        $filepath = get_file_full_path($base_path, $filename);
+        if(file_exists($filepath))
+            error_log('error: file '.$filepath.' exists.');
+
+        $samplefile = 'samplefiles/controller-api.php';
+
+        if(!file_exists($samplefile))
+            return false;
+
+        copy($samplefile, $filepath);
+        $params = array_merge(...array_fill(0, 5, [$routename, $filename]));
+        $file = fopen('./autoload/web.php', 'a');
+        fwrite($file, sprintf(file_get_contents('samplefiles/api-routing.php'), ...$params));
+        fclose($file);
+
+    });
+
+    $command->create('/^make:model (\S+)$/', function($filename){
+        $base_path = './app/';
+        $filepath = get_file_full_path($base_path, $filename);
+        if(file_exists($filepath))
+            error_log('error: file '.$filepath.' exists.');
+
+        $samplefile = 'samplefiles/model.php';
+
+        if(!file_exists($samplefile))
+            return false;
+
+        $file = fopen($filepath, 'w');
+        fwrite($file, sprintf(file_get_contents($samplefile), $filename));
+        fclose($file);
+    });
+
+    $command->create('/^make:model (\S+) --table=(\S+)$/', function($filename, $table){
+        $base_path = './app/';
+        $filepath = get_file_full_path($base_path, $filename);
+        if(file_exists($filepath))
+            error_log('error: file '.$filepath.' exists.');
+
+        $samplefile = 'samplefiles/model-table.php';
+
+        if(!file_exists($samplefile))
+            return false;
+
+        $file = fopen($filepath, 'w');
+        fwrite($file, sprintf(file_get_contents($samplefile), $filename, $table));
+        fclose($file);
+    });
+
+    $command->create('/^route:list$/', function(){
+        include_once('function.php');
+        include_once('autoload/web.php');
+
+        $maxlens = [
+            'method' => max(array_map(function($table){
+                return max(array_map(function($data){
+                    return mb_strlen($data['method']);
+                }, $table));
+            }, Route::$route_table)),
+            'url' => max(array_map(function($table){
+                return max(array_map(function($data){
+                    return mb_strlen($data['url']);
+                }, $table));
+            }, Route::$route_table)),
+            'action' => max(array_map(function($table){
+                return max(array_map(function($data){
+                    return mb_strlen($data['action']);
+                }, $table));
+            }, Route::$route_table))
+        ];
+
+        echo '+-'.str_repeat('-', 10).'+-'.str_repeat('-', max(6, $maxlens['url']+3)).'+-'.str_repeat('-', max(10, $maxlens['action']+3)).'+'.PHP_EOL;
+        echo '| '.str_pad('Method', 10, ' ', STR_PAD_BOTH).'| '.str_pad('URL', max(6, $maxlens['url']+3), ' ', STR_PAD_BOTH).'| '.str_pad('Action', max(6, $maxlens['action']+3), ' ', STR_PAD_BOTH).'| '.PHP_EOL;
+        echo '+-'.str_repeat('-', 10).'+-'.str_repeat('-', max(6, $maxlens['url']+3)).'+-'.str_repeat('-', max(10, $maxlens['action']+3)).'+'.PHP_EOL;
+        foreach(Route::$route_table as $method => $routes){
+            foreach($routes as $route){
+                echo '| '.str_pad($route['method'], 10).'| '.str_pad($route['url'], max(6, $maxlens['url']+3)).'| '.str_pad($route['action'], max(6, $maxlens['action']+3)).'| '.PHP_EOL;
+            }
+        }
+        echo '+-'.str_repeat('-', 10).'+-'.str_repeat('-', max(6, $maxlens['url']+3)).'+-'.str_repeat('-', max(10, $maxlens['action']+3)).'+'.PHP_EOL;
+
+    });
+
+    $command->execute();
