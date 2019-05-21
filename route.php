@@ -2,6 +2,7 @@
 
     class Route{
         static $routes = [];
+        static $route_table = [];
 
         static function get($url,$action){
             self::process("get",$url,$action);
@@ -26,9 +27,15 @@
         static function process($method,$url,$action){
             if(!containsKey(self::$routes,$method)){
                 self::$routes[$method] = [];
+                self::$route_table[$method] = [];
             }
             list($script,$function) = explode('@',$action);
 
+            array_push(self::$route_table[$method], [
+                'method' => $method,
+                'url' => $url,
+                'action' => $action
+            ]);
 
             $url = explode('/',$url);
             clearEmpty($url);
