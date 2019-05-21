@@ -12,6 +12,8 @@
    |___<autoload>
    |
    |___<public>
+   |
+   |___<samplefiles>
 ```
 ---
 ## 說明
@@ -30,6 +32,8 @@ controller.php 控制器
 route.php 處理路由，在autoload/web.php使用
 
 function.php 常用方法寫在這個檔案中，整個程式都可以使用
+
+samplefiles：存放cli相關的檔案(盡量不要動)
 
 ---
 
@@ -79,6 +83,10 @@ log(status_code=200)      | 在主控台打印Response Log
 Command                  | Description
 --------------|------
 php lai serv           | 啟動測試伺服器
+php lai make:controller | 產生名稱為控制器(controller)
+php lai make:model      | 產生模型(model)
+php lai route:list      | 顯示當前所有路由
+php lai help            | 幫助訊息
 
 > DB 使用
 
