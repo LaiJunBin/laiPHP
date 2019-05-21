@@ -41,6 +41,58 @@
 
     };
 
+    //Help...
+    $command->create('/^help$/', function(){
+        echo file_get_contents('samplefiles/help');
+        exit;
+    });
+
+    $command->create('/^$/', function(){
+        echo file_get_contents('samplefiles/help');
+        exit;
+    });
+
+    $command->create('/^serv --help$/', function(){
+        echo "php lai serv [options]".PHP_EOL;
+        echo "啟動測試伺服器".PHP_EOL;
+        echo "Options:".PHP_EOL;
+        echo "    --port={port}     將port設定為{port}的值".PHP_EOL;
+        echo "    default:          啟動測試伺服器".PHP_EOL;
+        exit;
+    });
+
+    $command->create('/^make:controller --help$/', function(){
+        echo "php lai make:controller [arguments] [options]".PHP_EOL;
+        echo "建立控制器".PHP_EOL;
+        echo "Arguments:".PHP_EOL;
+        echo "    產生的控制器名稱".PHP_EOL;
+        echo "Options:".PHP_EOL;
+        echo "    --blank                  產生全白的控制器".PHP_EOL;
+        echo "    --api                    產生具有CRUD空方法的控制器".PHP_EOL;
+        echo "    --api --routing={uri}    產生具有CRUD空方法的控制器外，建立對應uri的CRUD路由".PHP_EOL;
+        echo "    default:                 產生具有index方法的控制器".PHP_EOL;
+        exit;
+    });
+
+    $command->create('/^make:model --help$/', function(){
+        echo "php lai make:model [arguments] [options]".PHP_EOL;
+        echo "建立模型".PHP_EOL;
+        echo "Arguments:".PHP_EOL;
+        echo "    產生的模型名稱".PHP_EOL;
+        echo "Options:".PHP_EOL;
+        echo "    --table={name}   自動將對應的表名稱設定為{name}".PHP_EOL;
+        echo "    default:         僅產生模型".PHP_EOL;
+        exit;
+    });
+
+    $command->create('/^route:list --help$/', function(){
+        echo "php lai route:list".PHP_EOL;
+        echo "顯示所有路由".PHP_EOL;
+        exit;
+    });
+
+
+    //commands..
     $command->create('/^serv$/', function(){
         $host = HOST;
         $port = PORT;
