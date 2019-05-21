@@ -5,7 +5,7 @@
             return $this;
         }
 
-        public function json($json_data){
+        public function json($json_data=[]){
             header('Content-Type: application/json');
             echo json_encode($json_data);
             return $this;
