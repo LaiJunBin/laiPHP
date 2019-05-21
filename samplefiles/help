@@ -1,0 +1,15 @@
+php lai [command] [options] [arguments]
+
+Options:
+    --help  顯示特定指令的幫助訊息
+
+Available commands:
+    serv    啟動測試伺服器
+    help    顯示此訊息(也是預設的命令)
+
+Make:
+    make:controller     建立控制器
+    make:model          建立模型
+
+Route:
+    route:list          顯示所有路由
