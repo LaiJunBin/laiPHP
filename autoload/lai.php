@@ -139,6 +139,7 @@
                             $syntax = ('foreach('.$condition.'){ $params[mb_substr($index_variable,1)] = '.$index_variable.'; array_push($array, ...self::for_assign_variable($temp, $params, $index_variable)); }');
                             eval($syntax);
                             array_splice($html_array, $start, $end-$start+1, $array);
+                            $i = -1;
                             break;
                         }
                     }
@@ -161,6 +162,7 @@
                             $syntax = ('for('.$condition.'){ $params[mb_substr($index_variable,1)] = '.$index_variable.'; array_push($array, ...self::for_assign_variable($temp, $params, $index_variable)); }');
                             eval($syntax);
                             array_splice($html_array, $start, $end-$start+1, $array);
+                            $i = -1;
                             break;
                         }
                     }
