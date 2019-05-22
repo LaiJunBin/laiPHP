@@ -25,6 +25,53 @@
         return array_search($data,$array) !==false;
     }
 
+    function array_fetch($array, $keys){
+        $output = [];
+        foreach($array as $row){
+            $output[count($output)] = [];
+            foreach($keys as $key){
+                array_copy($output[count($output)-1], $row, $key);
+            }
+        }
+        return $output;
+    }
+
+    function array_only($array, $keys){
+        return array_fetch([$array], $keys);
+    }
+
+    function array_get($array, $key){
+        $current_key = explode('.', $key)[0];
+        $key = implode('.', array_slice(explode('.', $key), 1));
+
+        if($key == ""){
+            return $array[$current_key];
+        }
+
+        if(!containsKey($array, $current_key))
+            return false;
+
+        return array_get($array[$current_key], $key);
+    }
+
+    function array_copy(&$a, &$b, $key){
+        $current_key = explode('.', $key)[0];
+        $key = implode('.', array_slice(explode('.', $key), 1));
+
+        if($key == ""){
+            $a[$current_key] = $b[$current_key];
+            return;
+        }
+
+        if(!containsKey($a, $current_key))
+            $a[$current_key] = [];
+
+        if(!containsKey($b, $current_key))
+            $b[$current_key] = [];
+
+        array_copy($a[$current_key], $b[$current_key], $key);
+    }
+
     function clearEmpty(&$array){
         $array = values(array_filter($array,function($d){
             return $d !="";
