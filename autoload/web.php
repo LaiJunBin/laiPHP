@@ -9,4 +9,9 @@
     Route::get('/test', 'MainController@test');
 
     Route::get('/','MainController@index');
-    Route::get('/{id}', 'MainController@get');
+
+    Route::group('/api', function(){
+        Route::middleware('auth', function(){
+            Route::get('/', 'MainController@api');
+        });
+    });
