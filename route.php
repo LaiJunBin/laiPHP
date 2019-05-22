@@ -5,6 +5,7 @@
         static $route_table = [];
 
         private static $prefix = '';
+        private static $middleware = [];
 
         static function get($url,$action){
             self::process("get", $url, $action);
@@ -32,13 +33,19 @@
             self::$prefix = '';
         }
 
+        static function middleware($middleware, $func){
+            array_push(self::$middleware, $middleware);
+            $func();
+            array_pop(self::$middleware);
+        }
+
         static function process($method,$url,$action){
             if(!containsKey(self::$routes,$method)){
                 self::$routes[$method] = [];
                 self::$route_table[$method] = [];
             }
             list($script,$function) = explode('@',$action);
-            
+
             $url = self::$prefix.'/'.$url;
             $url = explode('/',$url);
             clearEmpty($url);
@@ -47,9 +54,11 @@
             array_push(self::$route_table[$method], [
                 'method' => $method,
                 'url' => '/'.$url,
-                'action' => $action
+                'action' => $action,
+                'middleware' => implode(',', self::$middleware)
             ]);
-
+            
+            preg_match_all("/{(.[^}]*)}/", $url, $params);
             $pattern = preg_replace("/{.[^}]*}/","(.*)",$url);
             $pattern = str_replace('/','\/',$pattern);
             $pattern = str_replace('?','\?',$pattern);
@@ -63,7 +72,9 @@
                 'script'=>$script,
                 'function'=>$function,
                 'pattern'=>$pattern,
-                'len'=>$url_count
+                'len'=>$url_count,
+                'middleware' => self::$middleware,
+                'params' => $params[1]
             ]);
 
         }
