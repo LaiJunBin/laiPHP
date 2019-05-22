@@ -76,7 +76,7 @@
                 eval($functionText);
             } catch (\TypeError $th) {
                 if($value !== "") $value = ', '.$value;
-                $functionText = "{$route['function']}({$request} {$value});";
+                $functionText = "{$route['function']}(\$request {$value});";
                 eval($functionText);
             }
 
