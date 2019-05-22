@@ -7,6 +7,7 @@
    |
    |___<app>
    |     |___ <controller>
+   |     |___ <middleware>
    |     |___ <views>
    |
    |___<autoload>
@@ -20,6 +21,8 @@
 app：存放Model，如app/Example.php
 
 app/controller：存放控制器，處理邏輯
+
+app/middleware：存放中介層
 
 app/views：存放畫面，目前還沒有模板引擎
 
@@ -65,6 +68,7 @@ post(array)               | 取得POST資料
 json(array,key)           | 取得JSON資料
 all(array)                | 依順序回傳第一個非空的資料，順序為JSON,POST,GET
 headers(key=null)         | 回傳對應的header，如果key=null將回傳所有header
+{route params}            | 回傳對應的路由參數，例如 $request->name
 
 > response.php
 
@@ -72,7 +76,7 @@ Response 物件
 
 Action Name              | Description
 --------------|------
-json(json_data)           | json response
+json(json_data=[])        | json response
 code(code=200)            | 設定http_response_code
 redirect(url)             | 轉址
 view(file,params=[])      | 顯示views中的文件，也可以傳入參數
@@ -83,7 +87,8 @@ log(status_code=200)      | 在主控台打印Response Log
 Command                  | Description
 --------------|------
 php lai serv           | 啟動測試伺服器
-php lai make:controller | 產生名稱為控制器(controller)
+php lai make:controller | 產生控制器(controller)
+php lai make:middleware | 產生中介層(middleware)
 php lai make:model      | 產生模型(model)
 php lai route:list      | 顯示當前所有路由
 php lai help            | 幫助訊息
