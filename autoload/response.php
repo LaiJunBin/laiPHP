@@ -41,7 +41,7 @@
         public function redirect($url){
             $url = explode('/',$url);
             clearEmpty($url);
-            $url = implode('/',$url);
+            $url = '/'.implode('/',$url);
 
             header("location:{$url}");
             return $this;
