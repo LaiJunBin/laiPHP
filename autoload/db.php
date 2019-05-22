@@ -2,6 +2,7 @@
 
     class DB{
         static protected $table = null;
+        private static $db = null;
 
         static function get_table(){
             return static::$table??get_called_class();
@@ -98,11 +99,9 @@
         }
 
         static function bindAll($sql,$params){
+            self::connection_db();
 
-            $db = new PDO("mysql:host=".HOST.";dbname=".DATA_BASE,USER_NAME,PASS_WORD);
-            $db->exec('set names utf8');
-
-            $query = $db->prepare($sql);
+            $query = self::$db->prepare($sql);
             foreach($params as $key => $value){
                 $query->bindValue($key,$value);
             }
@@ -114,5 +113,31 @@
             }
 
             return $query;
+        }
+
+        static function execute($sql, $params=[]){
+            if(self::get_class() !== 'DB')
+                return;
+
+            self::connection_db();
+            $query = self::$db->prepare($sql);
+            foreach($params as $key => $value){
+                $query->bindValue($key,$value);
+            }
+            $query->execute();
+
+            if($query->errorinfo()[2] != ""){
+                echo $sql.'<br>'.$query->errorinfo()[2];
+                exit;
+            }
+
+            return $query;
+        }
+
+        private static function connection_db(){
+            if(self::$db == null){
+                self::$db = new PDO("mysql:host=".HOST.";dbname=".DATA_BASE,USER_NAME,PASS_WORD);
+                self::$db->exec('set names utf8');
+            }
         }
     }
