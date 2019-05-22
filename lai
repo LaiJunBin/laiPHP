@@ -212,18 +212,23 @@
                 return max(array_map(function($data){
                     return mb_strlen($data['action']);
                 }, $table));
+            }, Route::$route_table)),
+            'middleware' => max(array_map(function($table){
+                return max(array_map(function($data){
+                    return mb_strlen($data['middleware']);
+                }, $table));
             }, Route::$route_table))
         ];
 
-        echo '+-'.str_repeat('-', 10).'+-'.str_repeat('-', max(6, $maxlens['url']+3)).'+-'.str_repeat('-', max(10, $maxlens['action']+3)).'+'.PHP_EOL;
-        echo '| '.str_pad('Method', 10, ' ', STR_PAD_BOTH).'| '.str_pad('URL', max(6, $maxlens['url']+3), ' ', STR_PAD_BOTH).'| '.str_pad('Action', max(6, $maxlens['action']+3), ' ', STR_PAD_BOTH).'| '.PHP_EOL;
-        echo '+-'.str_repeat('-', 10).'+-'.str_repeat('-', max(6, $maxlens['url']+3)).'+-'.str_repeat('-', max(10, $maxlens['action']+3)).'+'.PHP_EOL;
+        echo '+-'.str_repeat('-', 10).'+-'.str_repeat('-', max(6, $maxlens['url']+3)).'+-'.str_repeat('-', max(10, $maxlens['action']+3)).'+-'.str_repeat('-', max(13, $maxlens['middleware']+3)).'+'.PHP_EOL;
+        echo '| '.str_pad('Method', 10, ' ', STR_PAD_BOTH).'| '.str_pad('URL', max(6, $maxlens['url']+3), ' ', STR_PAD_BOTH).'| '.str_pad('Action', max(6, $maxlens['action']+3), ' ', STR_PAD_BOTH).'| '.str_pad('Middleware', max(13, $maxlens['middleware']+3), ' ', STR_PAD_BOTH).'| '.PHP_EOL;
+        echo '+-'.str_repeat('-', 10).'+-'.str_repeat('-', max(6, $maxlens['url']+3)).'+-'.str_repeat('-', max(10, $maxlens['action']+3)).'+-'.str_repeat('-', max(13, $maxlens['middleware']+3)).'+'.PHP_EOL;
         foreach(Route::$route_table as $method => $routes){
             foreach($routes as $route){
-                echo '| '.str_pad($route['method'], 10).'| '.str_pad($route['url'], max(6, $maxlens['url']+3)).'| '.str_pad($route['action'], max(6, $maxlens['action']+3)).'| '.PHP_EOL;
+                echo '| '.str_pad($route['method'], 10).'| '.str_pad($route['url'], max(6, $maxlens['url']+3)).'| '.str_pad($route['action'], max(6, $maxlens['action']+3)).'| '.str_pad($route['middleware'], max(13, $maxlens['middleware']+3)).'| '.PHP_EOL;
             }
         }
-        echo '+-'.str_repeat('-', 10).'+-'.str_repeat('-', max(6, $maxlens['url']+3)).'+-'.str_repeat('-', max(10, $maxlens['action']+3)).'+'.PHP_EOL;
+        echo '+-'.str_repeat('-', 10).'+-'.str_repeat('-', max(6, $maxlens['url']+3)).'+-'.str_repeat('-', max(10, $maxlens['action']+3)).'+-'.str_repeat('-', max(13, $maxlens['middleware']+3)).'+'.PHP_EOL;
 
     });
 
