@@ -4,12 +4,15 @@
 
         private $__status;
         private $__method;
-
+        private $__params;
+        
         function __get($name) {
             if($name === 'status')
                 return $this->__status;
             else if($name === 'method')
                 return $this->__method;
+            else if(containsKey($this->__params, $name))
+                return $this->__params[$name];
 
             user_error("Invalid property: " . __CLASS__ . "->$name");
         }
@@ -17,9 +20,10 @@
             user_error("Can't set property: " . __CLASS__ . "->$name");
         }
 
-        public function __construct() {
+        public function __construct($params=[]) {
             $this->__status = $_SERVER['REDIRECT_STATUS'] ?? 200;
             $this->__method = $_SERVER['REQUEST_METHOD'];
+            $this->__params = $params;
         }
 
         public function all(){
