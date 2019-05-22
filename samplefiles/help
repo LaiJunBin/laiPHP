@@ -9,6 +9,7 @@ Available commands:
 
 Make:
     make:controller     建立控制器
+    make:middleware     建立中介層
     make:model          建立模型
 
 Route:

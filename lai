@@ -85,6 +85,17 @@
         exit;
     });
 
+    $command->create('/^make:middleware --help$/', function(){
+        echo "php lai make:model [arguments] [options]".PHP_EOL;
+        echo "建立中介層".PHP_EOL;
+        echo "Arguments:".PHP_EOL;
+        echo "    產生的中介層名稱".PHP_EOL;
+        echo "Options:".PHP_EOL;
+        echo "    --name={name}    自動將該中介層以{name}註冊".PHP_EOL;
+        echo "    default:         僅產生中介層".PHP_EOL;
+        exit;
+    });
+
     $command->create('/^route:list --help$/', function(){
         echo "php lai route:list".PHP_EOL;
         echo "顯示所有路由".PHP_EOL;
@@ -192,6 +203,55 @@
         fwrite($file, sprintf(file_get_contents($samplefile), $filename, $table));
         fclose($file);
     });
+
+    $command->create('/^make:middleware (\S+)$/', function($filename){
+        $base_path = './app/middleware/';
+        $filepath = get_file_full_path($base_path, $filename);
+        if(file_exists($filepath)){
+            error_log('error: file '.$filepath.' exists.');
+            exit;
+        }
+
+        $samplefile = 'samplefiles/middleware.php';
+
+        if(!file_exists($samplefile))
+            return false;
+
+        $file = fopen($filepath, 'w');
+        fwrite($file, sprintf(file_get_contents($samplefile), ucfirst($filename)));
+        fclose($file);
+    });
+
+    $command->create('/^make:middleware (\S+) --name=(\S+)$/', function($filename, $name){
+        $base_path = './app/middleware/';
+        $filepath = get_file_full_path($base_path, $filename);
+        
+        if(file_exists($filepath)){
+            error_log('error: file '.$filepath.' exists.');
+            exit;
+        }
+        
+        $samplefile = 'samplefiles/middleware.php';
+
+        if(!file_exists($samplefile))
+            return false;
+
+        $file = fopen($filepath, 'w');
+        fwrite($file, sprintf(file_get_contents($samplefile), ucfirst($filename)));
+        fclose($file);
+
+        $routeMiddleware = explode(PHP_EOL, file_get_contents('autoload/routeMiddleware.php'));
+        for($i = 0; $i < count($routeMiddleware); $i++){
+            if(trim($routeMiddleware[$i]) == '];'){
+                array_splice($routeMiddleware, $i, 0, [
+                    '        // cli generate:',
+                    '        \''.$name.'\' => \''.$filename.'\''
+                ]);
+                file_put_contents('autoload/routeMiddleware.php', implode(PHP_EOL, $routeMiddleware));
+                break;
+            }
+        }
+    }); 
 
     $command->create('/^route:list$/', function(){
         include_once('function.php');
