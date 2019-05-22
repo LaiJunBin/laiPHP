@@ -1,8 +1,10 @@
 
     // ------- CLI Generate Routing (start) -------
-    Route::get("%s", "%s@list_all");
-    Route::get("%s/{id}", "%s@get");
-    Route::post("%s", "%s@create");
-    Route::patch("%s/{id}", "%s@update");
-    Route::delete("%s/{id}", "%s@delete");
+    Route::group("/%s", function(){
+        Route::get("/", "%s@list_all");
+        Route::get("/{id}", "%s@get");
+        Route::post("/", "%s@create");
+        Route::patch("/{id}", "%s@update");
+        Route::delete("/{id}", "%s@delete");
+    });
     // ------- CLI Generate Routing (end) -------

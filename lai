@@ -161,7 +161,8 @@
             return false;
 
         copy($samplefile, $filepath);
-        $params = array_merge(...array_fill(0, 5, [$routename, $filename]));
+        // $params = array_merge(...array_fill(0, 5, [$routename, $filename]));
+        $params = array_merge([$routename], array_fill(0, 5, $filename));
         $file = fopen('./autoload/web.php', 'a');
         fwrite($file, sprintf(file_get_contents('samplefiles/api-routing.php'), ...$params));
         fclose($file);
@@ -225,12 +226,12 @@
     $command->create('/^make:middleware (\S+) --name=(\S+)$/', function($filename, $name){
         $base_path = './app/middleware/';
         $filepath = get_file_full_path($base_path, $filename);
-        
+
         if(file_exists($filepath)){
             error_log('error: file '.$filepath.' exists.');
             exit;
         }
-        
+
         $samplefile = 'samplefiles/middleware.php';
 
         if(!file_exists($samplefile))
@@ -251,7 +252,7 @@
                 break;
             }
         }
-    }); 
+    });
 
     $command->create('/^route:list$/', function(){
         include_once('function.php');
