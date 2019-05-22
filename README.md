@@ -51,6 +51,10 @@ keys(array)               | 回傳陣列的keys
 values(array)             | 回傳陣列的values
 containsKey(array,key)    | 判斷陣列中是否存在索引為key
 contains(array,data)      | 判斷陣列中是否存在資料為data
+array_fetch(array, keys)  | 為陣列中所有元素抓取keys的元素，階層以.分隔
+array_only(array, keys)   | 為陣列中第一個元素抓取keys的元素，階層以.分隔
+array_get(array, key)     | 以key取得陣列中的元素，階層以.分隔
+array_copy(a, b, key)     | 複製b陣列中key的資料至a陣列
 clearEmpty(array)         | 清除陣列中所有空的元素
 Response(res=null)        | 產生Response()物件
 get_mime_type($filename)  | 取得檔案的mime type
