@@ -53,10 +53,15 @@
                 include_once('app/middleware/'.$routeMiddleware[$name].'.php');
                 $middleware = ucfirst(array_slice(explode('/', $routeMiddleware[$name]), -1, 1)[0]);
                 $middleware = new $middleware;
-                if($middleware->handle($request) === true){
+
+                $handle = $middleware->handle($request);
+
+                if($handle === true)
                     continue;
-                }
-                return Response()->code(401);
+                else if($handle instanceof Response)
+                    exit;
+                else
+                    return Response()->code(401);
             }
 
             include('app/controller/'.$route['script'].'.php');
