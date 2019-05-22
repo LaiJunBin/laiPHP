@@ -4,24 +4,32 @@
         static $routes = [];
         static $route_table = [];
 
+        private static $prefix = '';
+
         static function get($url,$action){
-            self::process("get",$url,$action);
+            self::process("get", $url, $action);
         }
 
         static function post($url,$action){
-            self::process("post",$url,$action);
+            self::process("post", $url, $action);
         }
 
         static function put($url,$action){
-            self::process("put",$url,$action);
+            self::process("put", $url, $action);
         }
 
         static function patch($url,$action){
-            self::process("patch",$url,$action);
+            self::process("patch", $url, $action);
         }
 
         static function delete($url,$action){
-            self::process("delete",$url,$action);
+            self::process("delete",self::$prefix.'/'.$url,$action);
+        }
+
+        static function group($prefix, $func){
+            self::$prefix .= '/'.$prefix;
+            $func();
+            self::$prefix = '';
         }
 
         static function process($method,$url,$action){
@@ -30,16 +38,17 @@
                 self::$route_table[$method] = [];
             }
             list($script,$function) = explode('@',$action);
-
-            array_push(self::$route_table[$method], [
-                'method' => $method,
-                'url' => $url,
-                'action' => $action
-            ]);
-
+            
+            $url = self::$prefix.'/'.$url;
             $url = explode('/',$url);
             clearEmpty($url);
             $url = implode('/',$url);
+            
+            array_push(self::$route_table[$method], [
+                'method' => $method,
+                'url' => '/'.$url,
+                'action' => $action
+            ]);
 
             $pattern = preg_replace("/{.[^}]*}/","(.*)",$url);
             $pattern = str_replace('/','\/',$pattern);
