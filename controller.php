@@ -42,6 +42,23 @@
     $contains_page = false;
     foreach(Route::$routes[$method] ?? [] as $route){
         if($url_count == $route['len'] && preg_match($route['pattern'],$url,$matches)){
+            $request = new Request(array_combine($route['params'], array_slice($matches, 1)));
+            foreach($route['middleware'] as $name){
+                if(!containsKey($routeMiddleware, $name))
+                    throw new Exception('Middleware not found.');
+
+                if(!file_exists('app/middleware/'.$routeMiddleware[$name].'.php'))
+                    throw new Exception('Middleware not exists.');
+
+                include_once('app/middleware/'.$routeMiddleware[$name].'.php');
+                $middleware = ucfirst(array_slice(explode('/', $routeMiddleware[$name]), -1, 1)[0]);
+                $middleware = new $middleware;
+                if($middleware->handle($request) === true){
+                    continue;
+                }
+                return Response()->code(401);
+            }
+
             include('app/controller/'.$route['script'].'.php');
             $values = array_map(function($value){
                 return '"'.$value.'"';
@@ -54,7 +71,7 @@
                 eval($functionText);
             } catch (\TypeError $th) {
                 if($value !== "") $value = ', '.$value;
-                $functionText = "{$route['function']}(new Request() {$value});";
+                $functionText = "{$route['function']}({$request} {$value});";
                 eval($functionText);
             }
 
