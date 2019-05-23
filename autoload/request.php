@@ -5,7 +5,7 @@
         private $__status;
         private $__method;
         private $__params;
-        
+
         function __get($name) {
             if($name === 'status')
                 return $this->__status;
@@ -46,7 +46,7 @@
 
         public function headers($key=null){
             if($key !== null)
-                return apache_request_headers()[$key];
+                return apache_request_headers()[$key] ?? null;
 
             return apache_request_headers();
         }
