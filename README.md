@@ -99,8 +99,13 @@ php lai help            | 幫助訊息
 
 > DB 使用
 
+Example為Model Class
+
+DB為基底類別
+
 Method           | Description
 --------------|------
+DB::execute(SQL) | 執行SQL語法
 Example::create([key=>value,...])  | 對Example表新增資料
 Example::update([key=>value,...],[condition=>value,...])  | 對Example表修改資料
 Example::delete([condition=>value,...])  | 對Example表刪除資料
