@@ -114,6 +114,8 @@ Example::contains([condition=>value,...])  | 對Example表尋找資料(回傳是
 
 檔名.php => 檔名.lai.php 即可使用模板引擎的語法，目前提供以下幾種
 
+* 目前foreach迴圈僅能支援一維陣列
+
 假設
 * $data = 100
 * $items = ['a', 'b', 'c']
@@ -277,6 +279,7 @@ title預設值為welcome，可以被section填入
       </tr>
    </tbody>
 </table>
+
 
 > env.php
 
