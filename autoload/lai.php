@@ -10,6 +10,7 @@
             fclose($html_file);
 
             self::_extends($html_array);
+            self::_include($html_array);
             self::_yield($html_array, $params);
             self::_section($html_array, $params);
             self::_decrypt_for_expression($html_array, $params);
@@ -44,6 +45,35 @@
                         $file = implode('/', $template_dir).'.lai.php';
                         if(!file_exists($file)){
                             throw new Error('extend template error!, template not found.');
+                        }
+                        $html_file = fopen($file, 'r');
+                        $array = [];
+                        while(($line = fgets($html_file)) !== false){
+                            $array[] = $line;
+                        }
+                        fclose($html_file);
+                        array_splice($html_array, $i, 1, $array);
+                        break;
+                        // $html_array = $array;
+                    }
+                }
+
+            }
+        }
+
+        private static function _include(&$html_array){
+            $check_include = true;
+            while($check_include){
+                $check_include = false;
+                for($i = 0; $i < count($html_array); $i++){
+                    if(mb_strpos(trim($html_array[$i]), '@include') === 0){
+                        $check_include = true;
+                        $include_file = trim(self::get_condition($html_array[$i]),'\'');
+                        $template_dir = ['app', 'views'];
+                        array_push($template_dir, ...explode('.', $include_file));
+                        $file = implode('/', $template_dir).'.lai.php';
+                        if(!file_exists($file)){
+                            throw new Error('include template error!, template not found.');
                         }
                         $html_file = fopen($file, 'r');
                         $array = [];
