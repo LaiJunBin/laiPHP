@@ -5,12 +5,15 @@
         private $__status;
         private $__method;
         private $__params;
+        private $__uri;
 
         function __get($name) {
             if($name === 'status')
                 return $this->__status;
             else if($name === 'method')
                 return $this->__method;
+            else if($name === 'uri')
+                return $this->__uri;
             else if(containsKey($this->__params, $name))
                 return $this->__params[$name];
 
@@ -23,6 +26,7 @@
         public function __construct($params=[]) {
             $this->__status = $_SERVER['REDIRECT_STATUS'] ?? 200;
             $this->__method = $_SERVER['REQUEST_METHOD'];
+            $this->__uri = $_SERVER['REQUEST_URI'];
             $this->__params = $params;
         }
 
