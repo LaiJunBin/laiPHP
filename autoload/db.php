@@ -116,7 +116,7 @@
         }
 
         static function execute($sql, $params=[]){
-            if(self::get_class() !== 'DB')
+            if(self::get_table() !== 'DB')
                 return;
 
             self::connection_db();
