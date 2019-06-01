@@ -25,7 +25,7 @@
             }
 
             for($i = 0; $i < count($matches[0]); $i++){
-                $syntax = "return {$matches[1][$i]};";
+                $syntax = "return {$matches[1][$i]} ?? '';";
                 $html_text = str_replace($matches[0][$i], htmlspecialchars(eval($syntax)), $html_text);
             }
 
