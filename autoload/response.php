@@ -1,5 +1,6 @@
 <?php
     class Response{
+
         public function __construct($res = null) {
             echo $res;
             return $this;
@@ -18,8 +19,16 @@
         }
 
         public function view($file,$params=[]){
+            session_start();
             $file = str_replace('.','/',$file);
             $filenames = glob("./app/views/{$file}.lai.php");
+
+            if(isset($_SESSION['errors'])){
+                $params['errors'] = $_SESSION['errors'];
+                unset($_SESSION['errors']);
+            }else{
+                $params['errors'] = [];
+            }
 
             if(count($filenames) == 0){
                 $filenames = glob("./app/views/{$file}.php");
@@ -36,6 +45,7 @@
                 $html_text = Lai::decryptFile($filenames[0], $params);
 
                 echo $html_text;
+                unset($params['errors']);
                 return $this;
             }
 
@@ -48,6 +58,13 @@
             $url = '/'.implode('/',$url);
 
             header("location:{$url}");
+
+            return $this;
+        }
+
+        public function withErrors($params=[]){
+            session_start();
+            $_SESSION['errors'] = $params;
             return $this;
         }
 
