@@ -42,7 +42,7 @@
     $contains_page = false;
     foreach(Route::$routes[$method] ?? [] as $route){
         if($url_count == $route['len'] && preg_match($route['pattern'],$url,$matches)){
-            $request = new Request(array_combine($route['params'], array_slice($matches, 1)));
+            $GLOBALS['request'] = new Request(array_combine($route['params'], array_slice($matches, 1)));
             foreach($route['middleware'] as $name){
                 if(!containsKey($routeMiddleware, $name))
                     throw new Exception('Middleware not found.');
@@ -54,7 +54,7 @@
                 $middleware = ucfirst(array_slice(explode('/', $routeMiddleware[$name]), -1, 1)[0]);
                 $middleware = new $middleware;
 
-                $handle = $middleware->handle($request);
+                $handle = $middleware->handle($GLOBALS['request']);
 
                 if($handle === true)
                     continue;
@@ -76,7 +76,7 @@
                 eval($functionText);
             } catch (\TypeError $th) {
                 if($value !== "") $value = ', '.$value;
-                $functionText = "{$route['function']}(\$request {$value});";
+                $functionText = "{$route['function']}(\$GLOBALS['request'] {$value});";
                 eval($functionText);
             }
 

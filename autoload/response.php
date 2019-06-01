@@ -18,7 +18,6 @@
         }
 
         public function view($file,$params=[]){
-
             $file = str_replace('.','/',$file);
             $filenames = glob("./app/views/{$file}.lai.php");
 
@@ -29,6 +28,11 @@
             } else {
                 header('Content-Type: text/html;charset=UTF-8');
                 // header('Content-Type: text/plain');
+
+                if(in_array('request', keys($params)))
+                    throw new \Exception('傳遞模板參數 request 是 保留字!');
+
+                $params['request'] = $GLOBALS['request'];
                 $html_text = Lai::decryptFile($filenames[0], $params);
 
                 echo $html_text;
