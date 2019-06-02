@@ -8,7 +8,13 @@
     }
 
     $current_dir = str_replace('\\','/',getcwd());
-    $url = explode('/',$_SERVER['REQUEST_URI']);
+    if(PATH_SEPARATOR==':'){
+        // Linux
+        $url = explode('/',LINUX_HOME.$_SERVER['REQUEST_URI']);
+    }else{
+        // Windows
+        $url = explode('/',$_SERVER['REQUEST_URI']);
+    }
     $root = $_SERVER['DOCUMENT_ROOT'];
     $method = strtolower($_SERVER['REQUEST_METHOD']);
 
