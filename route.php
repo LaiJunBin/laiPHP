@@ -24,7 +24,7 @@
         }
 
         static function delete($url,$action){
-            self::process("delete",self::$prefix.'/'.$url,$action);
+            self::process("delete", $url, $action);
         }
 
         static function group($prefix, $func){
@@ -50,14 +50,14 @@
             $url = explode('/',$url);
             clearEmpty($url);
             $url = implode('/',$url);
-            
+
             array_push(self::$route_table[$method], [
                 'method' => $method,
                 'url' => '/'.$url,
                 'action' => $action,
                 'middleware' => implode(',', self::$middleware)
             ]);
-            
+
             preg_match_all("/{(.[^}]*)}/", $url, $params);
             $pattern = preg_replace("/{.[^}]*}/","(.*)",$url);
             $pattern = str_replace('/','\/',$pattern);
