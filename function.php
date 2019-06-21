@@ -152,3 +152,28 @@
          return 'application/octet-stream';
         }
      }
+
+     function url($path){
+
+        $is_cli_server = php_sapi_name() == 'cli-server';
+        $path = array_filter(explode('/', $path), function($x){
+            return $x !== '.';
+        });
+
+        clearEmpty($path);
+        $path = implode('/', $path);
+
+        if(!$is_cli_server){
+            $current_dir = str_replace('\\','/',getcwd());
+            $root = $_SERVER['DOCUMENT_ROOT'];
+            $except_url = explode('/',str_replace($root,'',$current_dir));
+
+            clearEmpty($except_url);
+            $path = explode('/', ('/'.implode('/', $except_url).'/'.$path));
+            clearEmpty($path);
+            $path = implode('/', $path);
+            return '/'.$path;
+        }
+
+        return $path;
+     }
