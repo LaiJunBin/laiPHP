@@ -24,7 +24,7 @@ app/controller：存放控制器，處理邏輯
 
 app/middleware：存放中介層
 
-app/views：存放畫面，目前還沒有模板引擎
+app/views：存放畫面，有提供模板引擎(.lai.php)
 
 autoload：自動載入的類別
 
