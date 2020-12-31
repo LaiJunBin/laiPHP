@@ -4,6 +4,15 @@
         static protected $table = null;
         private static $db = null;
 
+        public function __construct($items = []) {
+            if(get_called_class() === 'DB'){
+                throw new Exception("can't new DB.");
+            }
+            foreach($items as $key => $value){
+                $this->$key = $value;
+            }
+        }
+
         static function get_table(){
             return static::$table??get_called_class();
         }
@@ -59,16 +68,40 @@
             self::bindAll($sql,$conditions);
         }
 
-        static function get($orderby=null){
-            return self::select([],$orderby)->fetchAll(PDO::FETCH_ASSOC);
+        static function get($index=null, $orderby=null){
+            if(is_array($index)){
+                $orderby = $index;
+                $index = null;
+            }
+            $class = get_called_class();
+            $results = self::select([],$orderby)->fetchAll(PDO::FETCH_ASSOC);
+            $array = [];
+            foreach($results as $result){
+                $instance = new $class($result);
+                $array[] = $instance;
+            }
+            if(is_numeric($index)){
+                return $array[$index] ?? null;
+            }else{
+                return new Collection($array);
+            }
         }
 
         static function find($conditions,$orderby=null){
-            return self::select($conditions,$orderby)->fetch(PDO::FETCH_ASSOC);
+            $class = get_called_class();
+            $instance = new $class(self::select($conditions,$orderby)->fetch(PDO::FETCH_ASSOC));
+            return $instance;
         }
 
         static function findall($conditions,$orderby=null){
-            return self::select($conditions,$orderby)->fetchAll(PDO::FETCH_ASSOC);
+            $class = get_called_class();
+            $results = self::select($conditions,$orderby)->fetchAll(PDO::FETCH_ASSOC);
+            $array = [];
+            foreach($results as $result){
+                $instance = new $class($result);
+                $array[] = $instance;
+            }
+            return new Collection($array);
         }
 
         static function contains($conditions,$orderby=null){
@@ -139,5 +172,43 @@
                 self::$db = new PDO("mysql:host=".HOST.";dbname=".DATA_BASE,USER_NAME,PASS_WORD);
                 self::$db->exec('set names utf8');
             }
+        }
+
+        protected function hasOne($table, $foreign_key=null, $id='id'){
+            if($foreign_key === null){
+                $foreign_key = strtolower($table).'_id';
+            }
+            include_once('app/'.$table.'.php');
+            return $table::find([$id => $this->$foreign_key]);
+        }
+
+        protected function hasMany($table, $foreign_key=null, $id='id'){
+            if($foreign_key === null){
+                if(isset($this->through_fields)){
+                    $foreign_key = strtolower($table).'_id';
+                }else{
+                    $foreign_key = strtolower(get_called_class()).'_id';
+                }
+            }
+            include_once('app/'.$table.'.php');
+            if(isset($this->through_fields)){
+                $results = $this->through_fields->map(function($tmp) use($table, $foreign_key, $id){
+                    return $table::find([$id => $tmp->$foreign_key]);
+                });
+                unset($this->through_fields);
+                return $results;
+            }else{
+                return $table::findall([$foreign_key => $this->$id]);
+            }
+        }
+
+        protected function through($table, $foreign_key=null, $id='id'){
+            if($foreign_key === null){
+                $foreign_key = strtolower(get_called_class()).'_id';
+            }
+
+            include_once('app/'.$table.'.php');
+            $this->through_fields = $table::findall([$foreign_key => $this->$id]);
+            return $this;
         }
     }
