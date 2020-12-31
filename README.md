@@ -161,7 +161,7 @@ Example::contains([condition=>value,...])  | 對Example表尋找資料(回傳是
       </td>
       <td>for 迴圈</td>
       </tr>
-
+<tr>
 <td>
 
 ```
@@ -181,7 +181,29 @@ Example::contains([condition=>value,...])  | 對Example表尋找資料(回傳是
 ```
 <br>
       </td>
-      <td>foreach 迴圈</td>
+      <td>foreach 迴圈(value)</td>
+      </tr>
+<tr>
+<td>
+
+```
+@foreach ($items as $key => $value){
+      <div>{{ $key . '=>'. $value }}</div>
+}
+
+```
+<br>
+      </td>
+      <td>
+
+```
+<div>0 => a</div>
+<div>1 => b</div>
+<div>2 => c</div>
+```
+<br>
+      </td>
+      <td>foreach 迴圈(key-value)</td>
       </tr>
       <tr>
       <td>
@@ -297,4 +319,4 @@ USER_NAME | 資料庫帳號
 PASS_WORD | 資料庫密碼
 
 ## License
-[MIT](https://github.com/LaiJunBin/PHP_Framework/blob/master/LICENSE)
+[MIT](https://github.com/LaiJunBin/laiphp/blob/master/LICENSE)

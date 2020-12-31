@@ -165,8 +165,16 @@
                             list($start, $end) = [$i, $j];
                             $temp = array_slice($html_array, $i+1, $j-$i-1);
                             $array = [];
-                            $index_variable = trim(mb_substr($condition, mb_strpos($condition, 'as')+2));
-                            $syntax = ('foreach('.$condition.'){ $params[mb_substr($index_variable,1)] = '.$index_variable.'; array_push($array, ...self::for_assign_variable($temp, $params, $index_variable)); }');
+                            $index_variable = trim(mb_substr($condition, mb_strpos($condition, ' as')+3));
+                            $arrow_index = mb_strpos($index_variable, '=>');
+                            if($arrow_index){
+                                $index_k = trim(mb_substr($index_variable, 0, $arrow_index));
+                                $index_v = trim(mb_substr($index_variable, $arrow_index+2));
+                                $syntax = ('foreach('.$condition.'){ $params[mb_substr($index_k,1)] = '.$index_k.';$params[mb_substr($index_v,1)] = '.$index_v.'; array_push($array, ...self::for_assign_variable($temp, $params, [$index_k, $index_v])); }');
+                            }else{
+                                $syntax = ('foreach('.$condition.'){ $params[mb_substr($index_variable,1)] = '.$index_variable.'; array_push($array, ...self::for_assign_variable($temp, $params, $index_variable)); }');
+                            }
+
                             eval($syntax);
                             array_splice($html_array, $start, $end-$start+1, $array);
                             $i = -1;
@@ -361,24 +369,24 @@
             $html_array[$left] = implode(' ',$array);
         }
 
-        private static function for_assign_variable($temp, $params, $index_variable){
+        private static function for_assign_variable($temp, $params, $index_variables=[]){
             foreach($params as $key =>$value){
                 $$key = $value;
             }
 
             $array = [];
+            if(!is_array($index_variables)){
+                $index_variables = [$index_variables];
+            }
+
             for($params['for1'] = 0; $params['for1'] < count($temp); $params['for1']++){
                 preg_match_all('/{{\s+([^}]*)\s+}}/', $temp[$params['for1']], $matches);
-
-                if(preg_match('/\\'.$index_variable.'\W/', $temp[$params['for1']])){
-                    if(is_string($params[mb_substr($index_variable,1)])){
-                        $array[$params['for1']] = preg_replace('/\\'.$index_variable.'/', '\''.$params[mb_substr($index_variable,1)].'\'', $temp[$params['for1']]);
-                    }else{
-                        $array[$params['for1']] = preg_replace('/\\'.$index_variable.'/', '\''.$params[mb_substr($index_variable,1)].'\'', $temp[$params['for1']]);
+                foreach($index_variables as $index_variable){
+                    if(preg_match('/\\'.$index_variable.'\W/', $temp[$params['for1']])){
+                        $temp[$params['for1']] = preg_replace('/\\'.$index_variable.'/', '\''.$params[mb_substr($index_variable,1)].'\'', $temp[$params['for1']]);
                     }
-                }else{
-                    $array[$params['for1']] = $temp[$params['for1']];
                 }
+                $array[$params['for1']] = $temp[$params['for1']];
             }
 
             return $array;
