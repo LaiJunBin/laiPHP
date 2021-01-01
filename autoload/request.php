@@ -50,11 +50,17 @@
             return $json_data;
         }
 
-        public function get(){
+        public function get($key=null){
+            if($key)
+                return $_GET[$key] ?? null;
+
             return $_GET;
         }
 
-        public function post(){
+        public function post($key=null){
+            if($key)
+                return $_POST[$key] ?? null;
+
             return $_POST;
         }
 
