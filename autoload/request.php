@@ -31,7 +31,17 @@
         }
 
         public function all(){
-            return $this->json() ?? (count($_POST) == 0 ? $_GET : $_POST);
+            $json = $this->json();
+            if($json)
+                return $json;
+
+            if(count($_POST))
+                return $_POST;
+
+            if(count($_GET))
+                return $_GET;
+
+            return file_get_contents('PHP://input');
         }
 
         public function json(){
