@@ -1,4 +1,5 @@
 <?php
+    session_start();
 
     include('env.php');
     include('function.php');
