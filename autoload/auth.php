@@ -14,6 +14,19 @@
         }
 
         public static function user(){
-            return $_SESSION['user'] ?? null;
+            if(!self::check())
+                return null;
+
+            $data = json_decode(json_encode($_SESSION['user']), true);
+            $class = $data['__PHP_Incomplete_Class_Name'];
+            unset($data['__PHP_Incomplete_Class_Name']);
+            return new $class($data);
+        }
+
+        public static function get_user_class(){
+            if(!self::check())
+                return null;
+
+            return get_class(self::user());
         }
     }
