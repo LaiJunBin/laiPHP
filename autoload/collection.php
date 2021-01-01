@@ -13,6 +13,10 @@
             if($index===null)
                 return $this;
 
+            if($index >= count($this->items)){
+                return null;
+            }
+
             return $this->items[$index];
         }
 
