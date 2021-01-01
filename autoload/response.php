@@ -19,7 +19,6 @@
         }
 
         public function view($file,$params=[]){
-            session_start();
             $file = str_replace('.','/',$file);
             $filenames = glob("./app/views/{$file}.lai.php");
 
@@ -56,17 +55,21 @@
         }
 
         public function redirect($url){
-            $url = explode('/',$url);
-            clearEmpty($url);
-            $url = '/'.implode('/',$url);
-
+            // $url = explode('/',$url);
+            // clearEmpty($url);
+            // $url = '/'.implode('/',$url);
+            $url = url($url);
             header("location:{$url}");
 
             return $this;
         }
 
+        public function withInput(Request $request){
+            $_SESSION['input'] = $request->all();
+            return $this;
+        }
+
         public function withErrors($params=[]){
-            session_start();
             $_SESSION['errors'] = $params;
             return $this;
         }
