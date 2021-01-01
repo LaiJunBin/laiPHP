@@ -32,6 +32,9 @@
 
             if(count($filenames) == 0){
                 $filenames = glob("./app/views/{$file}.php");
+                if(count($filenames) == 0){
+                    throw new Exception('View Template Not Found.');
+                }
                 require($filenames[0]);
                 return $this;
             } else {
