@@ -184,18 +184,17 @@
 
         protected function hasMany($table, $foreign_key=null, $id='id'){
             if($foreign_key === null){
-                if(isset($this->through_fields)){
+                if($this->through ?? false){
                     $foreign_key = strtolower($table).'_id';
                 }else{
                     $foreign_key = strtolower(get_called_class()).'_id';
                 }
             }
             include_once('app/'.$table.'.php');
-            if(isset($this->through_fields)){
-                $results = $this->through_fields->map(function($tmp) use($table, $foreign_key, $id){
+            if($this->through ?? false){
+                $results = $this->data->map(function($tmp) use($table, $foreign_key, $id){
                     return $table::find([$id => $tmp->$foreign_key]);
                 });
-                unset($this->through_fields);
                 return $results;
             }else{
                 return $table::findall([$foreign_key => $this->$id]);
@@ -208,7 +207,9 @@
             }
 
             include_once('app/'.$table.'.php');
-            $this->through_fields = $table::findall([$foreign_key => $this->$id]);
-            return $this;
+            return new $table([
+                'through' => true,
+                'data' => $table::findall([$foreign_key => $this->$id])
+            ]);
         }
     }
