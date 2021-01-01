@@ -286,3 +286,9 @@
 
         return $path;
      }
+
+     function old($key, $default=''){
+        $value = $_SESSION['input'][$key] ?? $default;
+        unset($_SESSION['input'][$key]);
+        return $value;
+     }
