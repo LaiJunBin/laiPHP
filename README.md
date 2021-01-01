@@ -44,9 +44,10 @@ samplefiles：存放cli相關的檔案(盡量不要動)
 
 > function.php
 
-Function Name           | Description
+Method           | Description
 --------------|------
-dd(var1,var2...)          | var_dump變數的簡寫
+dd(var1,var2...)          | 印出變數並結束程式執行
+dump(var1,var2...)        | 印出變數但不結束程式執行
 keys(array)               | 回傳陣列的keys
 values(array)             | 回傳陣列的values
 containsKey(array,key)    | 判斷陣列中是否存在索引為key
@@ -63,7 +64,7 @@ get_mime_type($filename)  | 取得檔案的mime type
 
 Request 物件
 
-Action Name              | Description
+Method              | Description
 --------------|------
 status                    | 取得Http Response Code
 method                    | 取得 方法 GET POST ....
@@ -78,13 +79,26 @@ headers(key=null)         | 回傳對應的header，如果key=null將回傳所�
 
 Response 物件
 
-Action Name              | Description
+Method              | Description
 --------------|------
 json(json_data=[])        | json response
 code(code=200)            | 設定http_response_code
 redirect(url)             | 轉址
 view(file,params=[])      | 顯示views中的文件，也可以傳入參數
 log(status_code=200)      | 在主控台打印Response Log
+
+> collection.php
+
+Collection 物件
+Method              | Description
+--------------|------
+get(index)   | 取得第index筆資料
+first() | 取得第一筆資料
+last()  | 取得最後一筆資料
+count() | 取得集合中的資料數
+map(func)   | map處理
+filter(func)      | filter處理
+to_array()    | 取得陣列
 
 > 命令使用
 
@@ -109,10 +123,25 @@ DB::execute(SQL) | 執行SQL語法
 Example::create([key=>value,...])  | 對Example表新增資料
 Example::update([key=>value,...],[condition=>value,...])  | 對Example表修改資料
 Example::delete([condition=>value,...])  | 對Example表刪除資料
+Example::get(index)  | 取得Example表的第i筆資料
 Example::get([orderby=>value,...])  | 取得Example表所有資料
+Example::get(index, [orderby=>value,...])  | 取得Example表排序後的第i筆資料
 Example::find([condition=>value,...])  | 對Example表尋找資料(一筆)
 Example::findall([condition=>value,...])  | 對Example表尋找資料(全部)
 Example::contains([condition=>value,...])  | 對Example表尋找資料(回傳是否存在)
+
+> 關聯模型
+
+Method           | Description
+--------------|------
+$this->hasOne(模型, 外鍵, 主鍵); | 一對一
+$this->hasMany(模型, 外鍵, 主鍵);  | 一對多
+$this->through(模型, 外鍵, 主鍵)->hasMany(模型, 外鍵, 主鍵);  | 多對多
+
+參數說明：
+* 模型 => app資料夾底下的Model，Ex: Example
+* 外鍵 => 若不輸入則預設為 模型_id， Ex: example_id，`若為多對多關聯則預設值為呼叫的模型class_id`
+* 主鍵 => 若不輸入則預設為 id
 
 
 ## Template Engine
