@@ -89,7 +89,10 @@
 
         static function find($conditions,$orderby=null){
             $class = get_called_class();
-            $instance = new $class(self::select($conditions,$orderby)->fetch(PDO::FETCH_ASSOC));
+            $data = self::select($conditions,$orderby)->fetch(PDO::FETCH_ASSOC);
+            if(!$data)
+                return false;
+            $instance = new $class($data);
             return $instance;
         }
 
