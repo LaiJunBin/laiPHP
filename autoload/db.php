@@ -23,7 +23,8 @@
             if($this->instance){
                 self::__callStatic('update', [$params, [static::$id => $this->{static::$id}]]);
             }else{
-                $class::create($params);
+                $model = $class::create($params);
+                $this->set($model);
                 $this->instance = true;
             }
         }
@@ -64,8 +65,7 @@
             return static::$table??get_called_class();
         }
 
-        static function create($params){
-
+        static function create($params, $return=true){
             $table = self::get_table();
 
             $keys = implode(',',keys($params));
@@ -77,6 +77,9 @@
             $sql = "insert into {$table}({$keys}) values({$bindKeys})";
 
             self::bindAll($sql,$params);
+            if($return){
+                return self::find(self::$db->lastInsertId());
+            }
         }
 
         static function updateStatic($params,$conditions){
