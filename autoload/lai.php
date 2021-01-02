@@ -18,7 +18,7 @@
             self::_decrypt($html_array, $params);
 
             $html_text = implode(' ', $html_array);
-            preg_match_all('/(?=@)(@{{\s*([^}]*)\s*}})|({{\s*([^}]*)\s*}})/', $html_text, $matches);
+            preg_match_all('/(?=!)(!{{\s*([^}]*)\s*}})|({{\s*([^}]*)\s*}})/', $html_text, $matches);
             foreach($params as $key =>$value){
                 $$key = $value;
             }
