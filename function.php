@@ -55,7 +55,7 @@
                         continue;
                     }
                     try {
-                        $custom_params[$method] = call_user_func([$param, $method]);
+                        $custom_params[$method.'()'] = call_user_func([$param, $method]);
                     } catch (\Throwable $th) {
                     }
                 }
