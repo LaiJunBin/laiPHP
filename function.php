@@ -134,7 +134,19 @@
         return array_search($data,$array) !==false;
     }
 
-    function array_fetch($array, $keys){
+    function array_fetch($array, ...$keys){
+        if(count($keys) === 0){
+            throw new Exception('keys empty.');
+        } else if (count($keys) === 1){
+            if(is_array($keys[0])){
+                $keys = $keys[0];
+            }else{
+                $keys = [$keys[0]];
+            }
+        } else {
+            $keys = $keys;
+        }
+
         $output = [];
         foreach($array as $row){
             $output[count($output)] = [];
@@ -145,8 +157,8 @@
         return $output;
     }
 
-    function array_only($array, $keys){
-        return array_fetch([$array], $keys);
+    function array_only($array, ...$keys){
+        return array_fetch([$array], ...$keys)[0];
     }
 
     function array_get($array, $key){
