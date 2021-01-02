@@ -67,6 +67,12 @@
             return new Collection(array_filter($this->items, $func));
         }
 
+        public function forEach($func){
+            foreach($this as $k => $v){
+                $func($v, $k);
+            }
+        }
+
         public function fetch(...$keys){
             return new Collection(array_fetch($this->to_array(), ...$keys));
         }
