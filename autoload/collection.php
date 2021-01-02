@@ -18,23 +18,23 @@
             }
         }
 
-        function __get($name) {
+        public function __get($name) {
             return $this->items[$name] ?? null;
         }
 
-        function __set($name, $value) {
+        public function __set($name, $value) {
             $this->items[$name] = $value;
         }
 
-        function __unset($name){
+        public function __unset($name){
             unset($this->items[$name]);
         }
 
-        function clear(){
+        public function clear(){
             $this->items = [];
         }
 
-        function set($data){
+        public function set($data){
             $this->clear();
             if($data instanceof Collection){
                 $data = $data->to_array();
@@ -43,6 +43,12 @@
             array_walk_recursive($data, function($v, $k){
                 $this->$k = $v;
             });
+        }
+
+        public function assign($items){
+            foreach($items as $k => $v){
+                $this->$k = $v;
+            }
         }
 
         // public function get($index=null){
