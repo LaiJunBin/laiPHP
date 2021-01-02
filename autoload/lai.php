@@ -18,14 +18,15 @@
             self::_decrypt($html_array, $params);
 
             $html_text = implode(' ', $html_array);
-            preg_match_all('/{{\s*([^}]*)\s*}}/', $html_text, $matches);
+            preg_match_all('/@?({{\s*([^}]*)\s*}})/', $html_text, $matches);
             foreach($params as $key =>$value){
                 $$key = $value;
             }
 
             for($i = 0; $i < count($matches[0]); $i++){
-                $syntax = "return {$matches[1][$i]} ?? '';";
-                $html_text = str_replace($matches[0][$i], htmlspecialchars(eval($syntax)), $html_text);
+                $syntax = "return {$matches[2][$i]} ?? '';";
+                $html_text = str_replace($matches[0][$i], eval($syntax), $html_text);
+                $html_text = str_replace($matches[1][$i], htmlspecialchars(eval($syntax)), $html_text);
             }
 
             return $html_text;
