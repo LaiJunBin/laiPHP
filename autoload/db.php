@@ -1,15 +1,62 @@
 <?php
 
-    class DB{
+    class DB extends Collection {
         static protected $table = null;
+        static protected $id = 'id';
         private static $db = null;
+        private $instance = false;
 
         public function __construct($items = []) {
             if(get_called_class() === 'DB'){
                 throw new Exception("can't new DB.");
             }
-            foreach($items as $key => $value){
-                $this->$key = $value;
+            parent::__construct($items);
+        }
+
+        public function isInstance(){
+            return $this->instance;
+        }
+
+        public function save(){
+            $class = get_called_class();
+            $params = $this->to_array();
+            if($this->instance){
+                self::__callStatic('update', [$params, [static::$id => $this->{static::$id}]]);
+            }else{
+                $class::create($params);
+                $this->instance = true;
+            }
+        }
+
+        private function updateObject($params){
+            static::update($params, [static::$id => $this->{static::$id}]);
+            foreach($params as $k => $v){
+                $this->$k = $v;
+            }
+        }
+
+        private function deleteObject(){
+            $this->instance = false;
+            static::__callStatic('delete', [[static::$id => $this->{static::$id}]]);
+        }
+
+        public function __call($name, $arguments){
+            if($this->instance){
+                switch($name){
+                    case 'update':
+                        return $this->updateObject($arguments[0]);
+                    case 'delete':
+                        return $this->deleteObject();
+                }
+            }
+        }
+
+        public static function __callStatic($name, $arguments){
+            switch($name){
+                case 'update':
+                    return self::updateStatic($arguments[0], $arguments[1]);
+                case 'delete':
+                    return self::deleteStatic($arguments[0]);
             }
         }
 
@@ -32,7 +79,7 @@
             self::bindAll($sql,$params);
         }
 
-        static function update($params,$conditions){
+        static function updateStatic($params,$conditions){
 
             $table = self::get_table();
 
@@ -54,7 +101,7 @@
             self::bindAll($sql,array_merge($params,$conditions));
         }
 
-        static function delete($conditions){
+        static function deleteStatic($conditions){
 
             $table = self::get_table();
 
@@ -78,6 +125,7 @@
             $array = [];
             foreach($results as $result){
                 $instance = new $class($result);
+                $instance->instance = true;
                 $array[] = $instance;
             }
             if(is_numeric($index)){
@@ -88,11 +136,17 @@
         }
 
         static function find($conditions,$orderby=null){
+            if(!is_array($conditions)){
+                $conditions = [
+                    static::$id => $conditions
+                ];
+            }
             $class = get_called_class();
             $data = self::select($conditions,$orderby)->fetch(PDO::FETCH_ASSOC);
             if(!$data)
                 return false;
             $instance = new $class($data);
+            $instance->instance = true;
             return $instance;
         }
 
@@ -102,6 +156,7 @@
             $array = [];
             foreach($results as $result){
                 $instance = new $class($result);
+                $instance->instance = true;
                 $array[] = $instance;
             }
             return new Collection($array);
@@ -177,21 +232,27 @@
             }
         }
 
-        protected function hasOne($table, $foreign_key=null, $id='id'){
+        protected function hasOne($table, $foreign_key=null, $id=null){
             if($foreign_key === null){
                 $foreign_key = strtolower($table).'_id';
             }
+            if($id === null){
+                $id = static::$id;
+            }
             include_once('app/'.$table.'.php');
-            return $table::find([$id => $this->$foreign_key]);
+            return @$table::find([$id => $this->$foreign_key]);
         }
 
-        protected function hasMany($table, $foreign_key=null, $id='id'){
+        protected function hasMany($table, $foreign_key=null, $id=null){
             if($foreign_key === null){
                 if($this->through ?? false){
                     $foreign_key = strtolower($table).'_id';
                 }else{
                     $foreign_key = strtolower(get_called_class()).'_id';
                 }
+            }
+            if($id === null){
+                $id = static::$id;
             }
             include_once('app/'.$table.'.php');
             if($this->through ?? false){
@@ -200,19 +261,22 @@
                 });
                 return $results;
             }else{
-                return $table::findall([$foreign_key => $this->$id]);
+                return @$table::findall([$foreign_key => $this->$id]);
             }
         }
 
-        protected function through($table, $foreign_key=null, $id='id'){
+        protected function through($table, $foreign_key=null, $id=null){
             if($foreign_key === null){
                 $foreign_key = strtolower(get_called_class()).'_id';
+            }
+            if($id === null){
+                $id = static::$id;
             }
 
             include_once('app/'.$table.'.php');
             return new $table([
                 'through' => true,
-                'data' => $table::findall([$foreign_key => $this->$id])
+                'data' => @$table::findall([$foreign_key => $this->$id])
             ]);
         }
     }
