@@ -22,6 +22,7 @@
             foreach($params as $key =>$value){
                 $$key = $value;
             }
+
             for($i = 0; $i < count($matches[0]); $i++){
                 $syntax = "return {$matches[1][$i]} ?? '';";
                 $html_text = str_replace($matches[0][$i], htmlspecialchars(eval($syntax)), $html_text);
@@ -403,22 +404,27 @@
 
             for($params['for1'] = 0; $params['for1'] < count($temp); $params['for1']++){
                 preg_match_all('/([^\'](\$([\w\->]+(\([^)]*\))*)*))/', $temp[$params['for1']], $matches);
-
                 foreach($matches[2] as $match){
                     preg_match_all('/\$([^\W\->]+)/', $match, $variables);
-                    $index_variable = $variables[1][0];
-                    if(array_key_exists($index_variable, $params)){
-                        try {
-                            $temp[$params['for1']] = preg_replace('/(\\'.$match.')([\s\W])/', "'".eval('return @'.$match.';')."'$2", $temp[$params['for1']]);
-                        } catch (\Throwable $th) {
+
+                    foreach($variables[1] as $index_variable){
+                        if(array_key_exists($index_variable, $params)){
+                            try {
+                                $temp[$params['for1']] = preg_replace('/(\\'.$match.')([\s\W])/', "'".eval('return @'.$match.';')."'$2", $temp[$params['for1']]);
+                            } catch (\Throwable $th) {
+                            }
                         }
                     }
 
                 }
+
+
+
                 preg_match_all('/{{\s*([^}]*)\s*}}/', $temp[$params['for1']], $matches);
 
                 if(count($matches[1])){
                     preg_match_all('/[^\']*(\$+[\w]+)/', $temp[$params['for1']], $variables);
+
                     if(count($variables[1]) > 0 && array_search(false, array_map(function($v) use($params){
                         return array_key_exists(mb_substr($v, 1), $params);
                     }, $variables[1])) === false){
@@ -429,7 +435,9 @@
                             $pk = 'param_'.bin2hex(random_bytes(5));
                             $params[$pk] = eval('return '.$match.';');
                             $$pk = $params[$pk];
-                            $temp[$params['for1']] = preg_replace('/(\\'.$match.')([\s\W])([\s\W])/', '$'.$pk.'$2$3', $temp[$params['for1']]);
+                            $match = preg_replace('/[\$\(\)]/', '\\\$0', $match);
+                            $pattern = '('.$match.')([\s\W])([\s\W])';
+                            $temp[$params['for1']] = preg_replace('/'.$pattern.'/', '$'.$pk.'$2$3', $temp[$params['for1']]);
                         }
                     }
                 }
