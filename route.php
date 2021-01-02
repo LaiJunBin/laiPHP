@@ -30,7 +30,7 @@
         static function group($prefix, $func){
             self::$prefix .= '/'.$prefix;
             $func();
-            self::$prefix = '';
+            self::$prefix = mb_substr(self::$prefix, 0, mb_strlen(self::$prefix)-mb_strlen($prefix));
         }
 
         static function middleware($middleware, $func){
