@@ -67,6 +67,8 @@
 
         static function create($params, $return=true){
             $table = self::get_table();
+            if($params instanceof Collection)
+                $params = $params->to_array();
 
             $keys = implode(',',keys($params));
 
@@ -85,7 +87,8 @@
         static function updateStatic($params,$conditions){
 
             $table = self::get_table();
-
+            if($params instanceof Collection)
+                $params = $params->to_array();
 
             $keys = implode(',',array_map(function($key){
                 return $key.'=:'.$key;
