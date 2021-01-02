@@ -2,7 +2,10 @@
 
     class Auth {
         public static function login($user){
-            $_SESSION['user'] = $user;
+            $_SESSION['user'] = [
+                'class' => get_class($user),
+                'data' => $user->to_array()
+            ];
         }
 
         public static function logout(){
@@ -17,9 +20,8 @@
             if(!self::check())
                 return null;
 
-            $data = json_decode(json_encode($_SESSION['user']), true);
-            $class = $data['__PHP_Incomplete_Class_Name'];
-            unset($data['__PHP_Incomplete_Class_Name']);
+            $data = $_SESSION['user']['data'];
+            $class = $_SESSION['user']['class'];
             return new $class($data);
         }
 
