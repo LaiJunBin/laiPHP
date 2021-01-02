@@ -193,6 +193,12 @@
         array_copy($a[$current_key], $b[$current_key], $key);
     }
 
+    function array_map_recursive($array, $func) {
+        return $func(array_map(function($item) use($func){
+            return is_array($item)? array_map_recursive($item, $func) : $func($item);
+        }, $array));
+    }
+
     function clearEmpty(&$array){
         $array = values(array_filter($array,function($d){
             return $d !="";
