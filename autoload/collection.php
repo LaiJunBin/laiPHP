@@ -68,6 +68,10 @@
             return count($this->items);
         }
 
+        public function includes($item){
+            return in_array($item, $this->items);
+        }
+
         public function map($func){
             return new Collection(array_map($func, $this->items));
         }
