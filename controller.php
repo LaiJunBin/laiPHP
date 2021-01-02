@@ -17,8 +17,23 @@
         $url = explode('/',$_SERVER['REQUEST_URI']);
     }
     $root = $_SERVER['DOCUMENT_ROOT'];
-    $method = strtolower($_SERVER['REQUEST_METHOD']);
+    $allow_methods = [
+        'GET',
+        'POST',
+        'PUT',
+        'PATCH',
+        'DELETE'
+    ];
 
+    if(isset($_POST['_method'])){
+        $method = strtoupper($_POST['_method']);
+        if(!in_array($method, $allow_methods)){
+            $method = $_SERVER['REQUEST_METHOD'];
+        }
+    } else {
+        $method = $_SERVER['REQUEST_METHOD'];
+    }
+    $method = strtolower($method);
     $except_url = explode('/',str_replace($root,'',$current_dir));
     $is_cli_server = php_sapi_name() == 'cli-server';
 
