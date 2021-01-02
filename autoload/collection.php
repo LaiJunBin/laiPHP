@@ -1,7 +1,7 @@
 <?php
 
     class Collection implements Iterator {
-        public $items;
+        private $items;
         public function __construct($items = []) {
             if(!is_array($items)){
                 throw new Exception('items type error.');
@@ -9,16 +9,23 @@
             $this->items = $items;
         }
 
-        public function get($index=null){
-            if($index===null)
-                return $this;
-
-            if($index >= count($this->items)){
-                return null;
-            }
-
-            return $this->items[$index];
+        function __get($name) {
+            return $this->items[$name] ?? null;
         }
+        function __set($name, $value) {
+            $this->items[$name] = $value;
+        }
+
+        // public function get($index=null){
+        //     if($index===null)
+        //         return $this;
+
+        //     if($index >= count($this->items)){
+        //         return null;
+        //     }
+
+        //     return $this->items[$index];
+        // }
 
         public function first(){
             return $this->items[0];
@@ -40,10 +47,20 @@
             return new Collection(array_filter($this->items, $func));
         }
 
-        public function to_array(){
-            return $this->items;
+        public function fetch(...$keys){
+            return new Collection(array_fetch($this->to_array(), ...$keys));
         }
 
+        public function only(...$keys){
+            return new Collection(array_only($this->to_array(), ...$keys));
+        }
+
+        public function to_array(){
+            array_walk_recursive($this->items, function(&$items){
+                $items = $items->items ?? $items;
+            });
+            return $this->items;
+        }
 
         public function rewind()
         {
