@@ -2,11 +2,20 @@
 
     class Collection implements Iterator {
         private $items;
-        public function __construct($items = []) {
+        public function __construct($items = [], $deep=false) {
             if(!is_array($items)){
                 throw new Exception('items type error.');
             }
-            $this->items = $items;
+            if($deep){
+                $this->items = array_map_recursive($items, function($item){
+                    if(is_array($item)){
+                        return new Collection($item);
+                    }
+                    return $item;
+                })->items;
+            }else{
+                $this->items = $items;
+            }
         }
 
         function __get($name) {
@@ -74,7 +83,7 @@
         }
 
         public function fetch(...$keys){
-            return new Collection(array_fetch($this->to_array(), ...$keys));
+            return new Collection(array_fetch($this->to_array(), ...$keys), true);
         }
 
         public function only(...$keys){
