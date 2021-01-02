@@ -22,11 +22,10 @@
             $file = str_replace('.','/',$file);
             $filenames = glob("./app/views/{$file}.lai.php");
 
+            $params['errors'] = [];
             if(isset($_SESSION['errors'])){
-                $params['errors'] = $_SESSION['errors'];
+                $params['errors'] = new Collection($_SESSION['errors']);
                 unset($_SESSION['errors']);
-            }else{
-                $params['errors'] = [];
             }
 
             if(count($filenames) == 0){
@@ -65,7 +64,7 @@
         }
 
         public function withInput(Request $request){
-            $_SESSION['input'] = $request->all();
+            $_SESSION['input'] = $request->all()->to_array();
             return $this;
         }
 
