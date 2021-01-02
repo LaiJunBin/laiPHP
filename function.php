@@ -310,3 +310,7 @@
         unset($_SESSION['input'][$key]);
         return $value;
      }
+
+     function method_field($method){
+         return '<input type="hidden" name="_method" value="'.$method.'">';
+     }
