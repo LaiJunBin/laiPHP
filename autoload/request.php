@@ -30,38 +30,59 @@
             $this->__params = $params;
         }
 
-        public function all(){
-            $json = $this->json();
+        public function all($keys=null){
+            $json = $this->json($keys);
             if($json)
                 return $json;
 
             if(count($_POST))
-                return $_POST;
+                return $this->post($keys);
 
             if(count($_GET))
-                return $_GET;
+                return $this->get($keys);
 
             return file_get_contents('PHP://input');
         }
 
-        public function json(){
+        public function json($keys=null){
             $raw_data = file_get_contents('PHP://input');
             $json_data = json_decode($raw_data, true);
-            return $json_data;
+            if(json_last_error() !== JSON_ERROR_NONE)
+                return null;
+
+            if($keys){
+                if(is_array($keys)){
+                    return new Collection(array_only($json_data, $keys));
+                } else {
+                    return $json_data[$keys] ?? null;
+                }
+            }
+
+            return new Collection($json_data);
         }
 
-        public function get($key=null){
-            if($key)
-                return $_GET[$key] ?? null;
+        public function get($keys=null){
+            if($keys){
+                if(is_array($keys)){
+                    return new Collection(array_only($_GET, $keys));
+                } else {
+                    return $_GET[$keys] ?? null;
+                }
+            }
 
-            return $_GET;
+            return new Collection($_GET);
         }
 
-        public function post($key=null){
-            if($key)
-                return $_POST[$key] ?? null;
+        public function post($keys=null){
+            if($keys){
+                if(is_array($keys)){
+                    return new Collection(array_only($_POST, $keys));
+                } else {
+                    return $_POST[$keys] ?? null;
+                }
+            }
 
-            return $_POST;
+            return new Collection($_POST);
         }
 
         public function headers($key=null){
