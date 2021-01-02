@@ -56,9 +56,13 @@ array_fetch(array, keys)  | 為陣列中所有元素抓取keys的元素，階層
 array_only(array, keys)   | 為陣列中第一個元素抓取keys的元素，階層以.分隔
 array_get(array, key)     | 以key取得陣列中的元素，階層以.分隔
 array_copy(a, b, key)     | 複製b陣列中key的資料至a陣列
+array_map_recursive(array, func) | 遞迴執行array_map
 clearEmpty(array)         | 清除陣列中所有空的元素
 Response(res=null)        | 產生Response()物件
-get_mime_type($filename)  | 取得檔案的mime type
+get_mime_type(filename)  | 取得檔案的mime type
+old(key, default) | 取得舊的輸入資料
+method_field(method) | 產生表單欺騙隱藏欄位
+
 
 > request.php
 
@@ -86,19 +90,40 @@ code(code=200)            | 設定http_response_code
 redirect(url)             | 轉址
 view(file,params=[])      | 顯示views中的文件，也可以傳入參數
 log(status_code=200)      | 在主控台打印Response Log
+withInput()               | 可搭配 old() 使用，將使用者輸入的值放回input
+withErrors(errors=[])     | 可在模板引擎中取得$errors變數
 
 > collection.php
 
 Collection 物件
 Method              | Description
 --------------|------
+clear()      | 清除資料
+set(data)   | 設定data
+assign(items) | 覆蓋items
 get(index)   | 取得第index筆資料
+includes(item) | 是否包含item
 first() | 取得第一筆資料
 last()  | 取得最後一筆資料
 count() | 取得集合中的資料數
 map(func)   | map處理
 filter(func)      | filter處理
+forEach(func)     | foreach處理
+fetch(keys)       | 同 array_fetch
+only(keys)       | 同 array_only
 to_array()    | 取得陣列
+
+> auth.php
+
+Auth 物件
+
+Method              | Description
+--------------|------
+login(user)  | 登入
+logout()     | 登出
+check()      | 檢查是否登入
+user()       | 取得登入的使用者
+get_user_class() | 取得user使用的class
 
 > 命令使用
 
@@ -129,6 +154,11 @@ Example::get(index, [orderby=>value,...])  | 取得Example表排序後的第i筆
 Example::find([condition=>value,...])  | 對Example表尋找資料(一筆)
 Example::findall([condition=>value,...])  | 對Example表尋找資料(全部)
 Example::contains([condition=>value,...])  | 對Example表尋找資料(回傳是否存在)
+$example->save()   | 將$example存入資料庫
+$example->delete() | 將$example從資料庫刪除
+$example->update([key => value, ...]) | 將$example更新
+$example->isInstance() | 檢查$example是否為資料庫中的實體
+
 
 > 關聯模型
 
@@ -153,6 +183,7 @@ $this->through(模型, 外鍵, 主鍵)->hasMany(模型, 外鍵, 主鍵);  | 多�
 假設
 * $data = 100
 * $items = ['a', 'b', 'c']
+* $html = `'<div>hello world</div>'`
 
 <table>
    <thead>
@@ -164,9 +195,16 @@ $this->through(模型, 外鍵, 主鍵)->hasMany(模型, 外鍵, 主鍵);  | 多�
    </thead>
    <tbody>
       <tr>
-         <td>{{ $data }}</td>
-         <td>100</td>
-         <td>輸出 $data 變數的值</td>
+         <td>{{ $html }}</td>
+         <td>
+            &lt;div&gt;hello world&lt;/div&gt;
+         </td>
+         <td>輸出經過處理的 $html 變數</td>
+      </tr>
+      <tr>
+         <td>!{{ $html }}</td>
+         <td>hello world</td>
+         <td>輸出未經過處理的 $html 變數</td>
       </tr>
       <tr>
       <td>
