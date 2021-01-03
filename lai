@@ -67,10 +67,13 @@
         echo "Arguments:".PHP_EOL;
         echo "    產生的控制器名稱".PHP_EOL;
         echo "Options:".PHP_EOL;
-        echo "    --blank                  產生全白的控制器".PHP_EOL;
-        echo "    --api                    產生具有CRUD空方法的控制器".PHP_EOL;
-        echo "    --api --routing={uri}    產生具有CRUD空方法的控制器外，建立對應uri的CRUD路由".PHP_EOL;
-        echo "    default:                 產生具有index方法的控制器".PHP_EOL;
+        echo "    --blank                       產生全白的控制器".PHP_EOL;
+        echo "    --with-routing                產生對應好路由行為的控制器".PHP_EOL;
+        echo "    --api                         產生具有CRUD空方法的控制器".PHP_EOL;
+        echo "    --api --routing={uri}         產生具有CRUD空方法的控制器外，建立對應uri的CRUD路由".PHP_EOL;
+        echo "    --resource                    產生資源控制器".PHP_EOL;
+        echo "    --resource --routing={uri}    產生資源控制器外，建立對應uri的路由".PHP_EOL;
+        echo "    default:                      產生具有index方法的控制器".PHP_EOL;
         exit;
     });
 
@@ -131,6 +134,66 @@
         copy($samplefile, $filepath);
     });
 
+    $command->create('/^make:controller (\S+) --(\S+) --routing=(\S+)$/', function($filename, $type, $routename){
+        $base_path = './app/controller/';
+        $filepath = get_file_full_path($base_path, $filename);
+        if(file_exists($filepath)){
+            error_log('error: file '.$filepath.' exists.');
+            exit;
+        }
+
+        $samplefile = 'samplefiles/controller-'.$type.'.php';
+
+        if(!file_exists($samplefile))
+            return false;
+
+        copy($samplefile, $filepath);
+        // $params = array_merge(...array_fill(0, 5, [$routename, $filename]));
+        $params = array_merge([$routename], array_fill(0, 7, $filename));
+        $file = fopen('./autoload/web.php', 'a');
+        fwrite($file, sprintf(file_get_contents('samplefiles/'.$type.'-routing.php'), ...$params));
+        fclose($file);
+
+    });
+
+    $command->create('/^make:controller (\S+) --with-routing$/', function($filename){
+        $base_path = './app/controller/';
+        $filepath = get_file_full_path($base_path, $filename);
+        if(file_exists($filepath)){
+            error_log('error: file '.$filepath.' exists.');
+            exit;
+        }
+
+        $samplefile = 'samplefiles/controller-blank.php';
+
+        if(!file_exists($samplefile))
+            return false;
+
+        $route_text = file_get_contents('./autoload/web.php');
+        $pattern = '/Route::\S+\([\'"](\S+)?[\'"]\s*,\s*[\'"]([^\s\'"]+)/';
+        preg_match_all($pattern, $route_text, $matches);
+
+        copy($samplefile, $filepath);
+        $file = fopen($filepath, 'a');
+
+        for($i = 0; $i < count($matches[0]); $i++){
+            list($script,$function) = explode('@', $matches[2][$i]);
+            if($script === $filename){
+                $url = $matches[1][$i];
+                preg_match_all("/{(.[^}]*)}/", $matches[1][$i], $params);
+                $arguments = implode(', ', ['Request $request', ...array_map(function($p){
+                    return '$'.$p;
+                }, $params[1])]);
+
+                $text = "\tfunction {$function}({$arguments}) { \n \n \t} \n\n";
+                fwrite($file, $text);
+            }
+        }
+
+        fclose($file);
+
+    });
+
     $command->create('/^make:controller (\S+) --(\S+)$/', function($filename, $type){
         $base_path = './app/controller/';
         $filepath = get_file_full_path($base_path, $filename);
@@ -145,28 +208,6 @@
             return false;
 
         copy($samplefile, $filepath);
-    });
-
-    $command->create('/^make:controller (\S+) --api --routing=(\S+)$/', function($filename, $routename){
-        $base_path = './app/controller/';
-        $filepath = get_file_full_path($base_path, $filename);
-        if(file_exists($filepath)){
-            error_log('error: file '.$filepath.' exists.');
-            exit;
-        }
-
-        $samplefile = 'samplefiles/controller-api.php';
-
-        if(!file_exists($samplefile))
-            return false;
-
-        copy($samplefile, $filepath);
-        // $params = array_merge(...array_fill(0, 5, [$routename, $filename]));
-        $params = array_merge([$routename], array_fill(0, 7, $filename));
-        $file = fopen('./autoload/web.php', 'a');
-        fwrite($file, sprintf(file_get_contents('samplefiles/api-routing.php'), ...$params));
-        fclose($file);
-
     });
 
     $command->create('/^make:model (\S+)$/', function($filename){

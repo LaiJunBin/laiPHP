@@ -1,17 +1,27 @@
 <?php
     // # API ....
 
-    function list_all($request){
+    function index($request){
 
         return Response();
     }
 
-    function get($request, $id){
+    function show($request, $id){
+
+        return Response();
+    }
+
+    function create($request){
 
         return Response();
     }
 
     function store($request){
+
+        return Response();
+    }
+
+    function edit($request, $id){
 
         return Response();
     }
