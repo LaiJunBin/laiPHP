@@ -35,19 +35,19 @@
         }
 
         static function post($url,$action){
-            self::process("post", $url, $action);
+            return self::process("post", $url, $action);
         }
 
         static function put($url,$action){
-            self::process("put", $url, $action);
+            return self::process("put", $url, $action);
         }
 
         static function patch($url,$action){
-            self::process("patch", $url, $action);
+            return self::process("patch", $url, $action);
         }
 
         static function delete($url,$action){
-            self::process("delete", $url, $action);
+            return self::process("delete", $url, $action);
         }
 
         static function group($prefix, $func){
