@@ -72,6 +72,10 @@
             return $this;
         }
 
+        public function redirectRoute($route_name, $params){
+            return $this->redirect(route($route_name, $params, false));
+        }
+
         public function withInput(Request $request){
             $_SESSION['input'] = $request->all()->to_array();
             return $this;
