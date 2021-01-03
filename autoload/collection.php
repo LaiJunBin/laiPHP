@@ -107,6 +107,10 @@
             return $this->items;
         }
 
+        public function join($glue=' '){
+            return implode($glue, $this->to_array());
+        }
+
         public function rewind()
         {
             reset($this->items);
