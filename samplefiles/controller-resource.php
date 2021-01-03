@@ -1,37 +1,37 @@
 <?php
     // # API ....
 
-    function index($request){
+    function index(Request $request){
 
         return Response();
     }
 
-    function show($request, $id){
+    function show(Request $request, $id){
 
         return Response();
     }
 
-    function create($request){
+    function create(Request $request){
 
         return Response();
     }
 
-    function store($request){
+    function store(Request $request){
 
         return Response();
     }
 
-    function edit($request, $id){
+    function edit(Request $request, $id){
 
         return Response();
     }
 
-    function update($request, $id){
+    function update(Request $request, $id){
 
         return Response();
     }
 
-    function delete($request, $id){
+    function delete(Request $request, $id){
 
         return Response();
     }

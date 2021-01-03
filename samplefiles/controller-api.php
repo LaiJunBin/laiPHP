@@ -1,27 +1,27 @@
 <?php
     // # API ....
 
-    function list_all($request){
+    function list_all(Request $request){
 
         return Response();
     }
 
-    function get($request, $id){
+    function get(Request $request, $id){
 
         return Response();
     }
 
-    function store($request){
+    function store(Request $request){
 
         return Response();
     }
 
-    function update($request, $id){
+    function update(Request $request, $id){
 
         return Response();
     }
 
-    function delete($request, $id){
+    function delete(Request $request, $id){
 
         return Response();
     }
