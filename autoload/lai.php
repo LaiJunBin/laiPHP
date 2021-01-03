@@ -11,6 +11,7 @@
 
             self::_extends($html_array);
             self::_include($html_array);
+            self::_hashtag($html_array, $params);
             self::_yield($html_array, $params);
             self::_section($html_array, $params);
             self::_decrypt_for_expression($html_array, $params);
@@ -92,6 +93,45 @@
                 }
 
             }
+        }
+
+        private static function _hashtag(&$html_array, &$params){
+            $err_code = 0;
+            set_error_handler(function ($errNo, $errStr) use(&$err_code){
+                if (strpos($errStr, 'Use of undefined constant ') === 0) {
+                    $err_code = 1;
+                } else {
+                    return false;
+                }
+            });
+
+            for($i = 0; $i < count($html_array); $i++){
+                $html = trim($html_array[$i]);
+                if(strpos($html, '#') === 0){
+                    $syntax = '@'.mb_substr($html, 1).';';
+                    $err_code = 0;
+                    eval($syntax);
+                    if($err_code === 0)
+                        $html_array[$i] = '';
+
+                }
+            }
+
+            $ignore = [
+                'html_array',
+                'params',
+                'err_code',
+                'i',
+                'html',
+                'syntax'
+            ];
+            foreach(get_defined_vars() as $key => $value){
+                if(!in_array($key, $ignore)){
+                    $params[$key] = $value;
+                }
+            }
+
+            restore_error_handler();
         }
 
         private static function _yield(&$html_array, &$params){
