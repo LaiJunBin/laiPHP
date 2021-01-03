@@ -11,7 +11,7 @@
         }
 
         public function saveAs($path, $filename=null){
-            if($filename === null){
+            if($filename == null){
                 $filename = str_replace('.', '', microtime(true));
             }
 
