@@ -75,7 +75,7 @@
             return $this;
         }
 
-        public function redirectRoute($route_name, $params){
+        public function redirectRoute($route_name, $params=[]){
             return $this->redirect(route($route_name, $params, false));
         }
 
