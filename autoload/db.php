@@ -38,6 +38,7 @@
 
         private function deleteObject(){
             $this->instance = false;
+            call_user_func([$this, 'onDelete']);
             static::__callStatic('delete', [[static::$id => $this->{static::$id}]]);
         }
 
@@ -58,6 +59,10 @@
                     return self::updateStatic($arguments[0], $arguments[1]);
                 case 'delete':
                     return self::deleteStatic($arguments[0]);
+                case 'find':
+                    return self::findStatic($arguments[0], $arguments[1] ?? []);
+                case 'count':
+                    return self::countStatic();
             }
         }
 
@@ -111,7 +116,6 @@
 
             $table = self::get_table();
 
-
             $conditionKeys = implode(' and ',array_map(function($key){
                 return $key.'=:'.$key;
             },keys($conditions)));
@@ -141,7 +145,12 @@
             }
         }
 
-        static function find($conditions,$orderby=null){
+        static function countStatic(){
+            return self::get()->count();
+        }
+
+        static function findStatic($conditions,$orderby=null){
+
             if(!is_array($conditions)){
                 $conditions = [
                     static::$id => $conditions
@@ -245,8 +254,9 @@
             if($id === null){
                 $id = static::$id;
             }
+
             include_once('app/'.$table.'.php');
-            return @$table::find([$id => $this->$foreign_key]);
+            return @$table::findStatic([$id => $this->$foreign_key]);
         }
 
         protected function hasMany($table, $foreign_key=null, $id=null){

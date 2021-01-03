@@ -2,7 +2,7 @@
     // 經常使用的方法定義在這邊
 
     $dd_options = [
-        'max_object_depth' => 10,
+        'max_object_depth' => 7,
         'tab_size' => 4,
         'pre_style' => 'background:#333; font-size:16px; color:#fff; padding:10px;',
         'styles' => [
@@ -55,11 +55,15 @@
                         continue;
                     }
                     try {
+                        if(mb_strpos($method, 'on') === 0)
+                            continue;
+
                         $custom_params[$method.'()'] = call_user_func([$param, $method]);
                     } catch (\Throwable $th) {
                     }
                 }
             }
+
             $count += count($custom_params);
 
             echo '<span style="'.$dd_options['styles']['object'].'">';
@@ -112,9 +116,18 @@
         } else {
             $type = gettype($param);
             $style = $dd_options['styles'][$type] ?? $dd_options['styles']['default'];
-            echo '<span style="'.$style.'">';
-            var_dump($param);
-            echo '</span>';
+            if(mb_strlen($param) <= 1000){
+                echo '<span style="'.$style.'">';
+                var_dump($param);
+                echo '</span>';
+            }else{
+                echo '<span style="'.$dd_options['styles']['fold'].'cursor:pointer;" onclick="this.innerHTML=this.innerHTML===\'(Open..'.strlen($param).')<br>\'?\'(Close) ';
+                echo '<br>\':\'(Open..'.strlen($param).')<br>\';this.nextSibling.style.display=this.nextSibling.style.display===\'none\'?\'block\':\'none\';">(Open..'.strlen($param).')<br></span><div style="display: none;">';
+                echo '<span style="'.$style.'">';
+                var_dump($param);
+                echo '</span>';
+                echo str_repeat(' ', $tab).'</div>';
+            }
         }
     }
 
@@ -308,6 +321,21 @@
         }
 
         return $path;
+     }
+
+     function clean_url($url){
+        $url = explode('/', $url);
+        clearEmpty($url);
+        $url = implode('/', $url);
+        return $url;
+     }
+
+     function public_path($path){
+         return clean_url('public/'.$path);
+     }
+
+     function assets_path($path){
+        return clean_url('public/assets/'.$path);
      }
 
      function old($key, $default=''){

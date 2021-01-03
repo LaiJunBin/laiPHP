@@ -3,6 +3,10 @@
     class Collection implements Iterator {
         private $items;
         public function __construct($items = [], $deep=false) {
+            if($items instanceof Collection){
+                $items = $items->to_array();
+            }
+
             if(!is_array($items)){
                 throw new Exception('items type error.');
             }
@@ -28,6 +32,19 @@
 
         public function __unset($name){
             unset($this->items[$name]);
+        }
+
+        public function __call($name, $arguments){
+            switch($name){
+                case 'find':
+                    return $this->findObject($arguments[0]);
+                case 'count':
+                    return $this->countItems();
+            }
+        }
+
+        public static function __callStatic($name, $arguments){
+            dump($name);
         }
 
         public function clear(){
@@ -70,7 +87,7 @@
             return $this->items[count($this->items)];
         }
 
-        public function count(){
+        public function countItems(){
             return count($this->items);
         }
 
@@ -84,6 +101,28 @@
 
         public function filter($func){
             return new Collection(array_filter($this->items, $func));
+        }
+
+        public function recursive($func){
+            $res = $func($this);
+            if($res instanceof Collection){
+                return $res->map(function($d) use($func){
+                    return $d->recursive($func);
+                });
+            }
+            return $res;
+        }
+
+        public function sum(){
+            return array_sum($this->items);
+        }
+
+        public function findObject($func){
+            foreach($this as $k => $v){
+                if($func($v, $k)){
+                    return $v;
+                }
+            }
         }
 
         public function forEach($func){
@@ -105,6 +144,16 @@
                 $items = $items->items ?? $items;
             });
             return $this->items;
+        }
+
+        public function flat(){
+            $output = [];
+            foreach($this as $values){
+                foreach($values as $value){
+                    $output[] = $value;
+                }
+            }
+            return new Collection($output);
         }
 
         public function join($glue=' '){
