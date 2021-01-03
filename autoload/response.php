@@ -22,6 +22,15 @@
             $file = str_replace('.','/',$file);
             $filenames = glob("./app/views/{$file}.lai.php");
 
+            foreach(GlobalParam::default() as $key => $value){
+                if(!array_key_exists($key, $params))
+                    $params[$key] = $value;
+            }
+
+            foreach(GlobalParam::assign() as $key => $value){
+                $params[$key] = $value;
+            }
+
             $params['errors'] = [];
             if(isset($_SESSION['errors'])){
                 $params['errors'] = new Collection($_SESSION['errors']);
