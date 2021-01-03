@@ -162,7 +162,7 @@
 
         copy($samplefile, $filepath);
         // $params = array_merge(...array_fill(0, 5, [$routename, $filename]));
-        $params = array_merge([$routename], array_fill(0, 5, $filename));
+        $params = array_merge([$routename], array_fill(0, 7, $filename));
         $file = fopen('./autoload/web.php', 'a');
         fwrite($file, sprintf(file_get_contents('samplefiles/api-routing.php'), ...$params));
         fclose($file);
