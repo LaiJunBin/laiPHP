@@ -5,10 +5,33 @@
         static $route_table = [];
 
         private static $prefix = '';
-        private static $middleware = [];
+        private static $current_middleware = [];
+
+        public function __construct($params=[]){
+            foreach($params as $key => $value){
+                $this->$key = $value;
+            }
+        }
+
+        public function name($name){
+            $this->name = $name;
+            self::$route_table[$this->method][count(self::$route_table[$this->method])-1]['name'] = $name;
+            return $this;
+        }
+
+        public function middleware($middleware, $func=null){
+            if($func === null){
+                array_push($this->middleware, $middleware);
+                self::$route_table[$this->method][count(self::$route_table[$this->method])-1]['middleware'] = implode(', ', $this->middleware);
+                return $this;
+            }
+            array_push(self::$current_middleware, $middleware);
+            $func();
+            array_pop(self::$current_middleware);
+        }
 
         static function get($url,$action){
-            self::process("get", $url, $action);
+            return self::process("get", $url, $action);
         }
 
         static function post($url,$action){
@@ -33,11 +56,11 @@
             self::$prefix = mb_substr(self::$prefix, 0, mb_strlen(self::$prefix)-mb_strlen($prefix)-1);
         }
 
-        static function middleware($middleware, $func){
-            array_push(self::$middleware, $middleware);
-            $func();
-            array_pop(self::$middleware);
-        }
+        // static function middlewareStatic($middleware, $func){
+        //     array_push(self::$current_middleware, $middleware);
+        //     $func();
+        //     array_pop(self::$current_middleware);
+        // }
 
         static function process($method,$url,$action){
             if(!containsKey(self::$routes,$method)){
@@ -55,7 +78,8 @@
                 'method' => $method,
                 'url' => '/'.$url,
                 'action' => $action,
-                'middleware' => implode(',', self::$middleware)
+                'middleware' => implode(', ', self::$current_middleware),
+                'name' => ''
             ]);
 
             preg_match_all("/{(.[^}]*)}/", $url, $params);
@@ -68,15 +92,17 @@
             clearEmpty($url);
             $url_count = count($url);
 
-            array_push(self::$routes[$method],[
+            $route = new Route([
+                'method' => $method,
                 'script'=>$script,
                 'function'=>$function,
                 'pattern'=>$pattern,
                 'len'=>$url_count,
-                'middleware' => self::$middleware,
+                'middleware' => self::$current_middleware,
                 'params' => $params[1]
             ]);
-
+            array_push(self::$routes[$method], $route);
+            return $route;
         }
 
         static function hasUri($url,$method='get'){
@@ -86,7 +112,7 @@
             $url_count = count($url);
             $url = implode('/',$url);
             foreach(static::$routes[$method] ?? [] as $route){
-                if($url_count == $route['len'] && preg_match($route['pattern'],$url)){
+                if($url_count == $route->len && preg_match($route->pattern, $url)){
                     $isCorrect = true;
                     break;
                 }

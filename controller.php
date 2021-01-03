@@ -63,9 +63,9 @@
 
     $contains_page = false;
     foreach(Route::$routes[$method] ?? [] as $route){
-        if($url_count == $route['len'] && preg_match($route['pattern'],$url,$matches)){
-            $GLOBALS['request'] = new Request(array_combine($route['params'], array_slice($matches, 1)));
-            foreach($route['middleware'] as $name){
+        if($url_count == $route->len && preg_match($route->pattern, $url, $matches)){
+            $GLOBALS['request'] = new Request(array_combine($route->params, array_slice($matches, 1)));
+            foreach($route->middleware as $name){
                 if(!containsKey($routeMiddleware, $name))
                     throw new Exception('Middleware not found.');
 
@@ -86,7 +86,7 @@
                     return Response()->code(401);
             }
 
-            include('app/controller/'.$route['script'].'.php');
+            include('app/controller/'.$route->script.'.php');
             $values = array_map(function($value){
                 return '"'.$value.'"';
             },array_slice($matches,1));
@@ -94,11 +94,11 @@
             $value = implode(',',$values);
 
             try {
-                $functionText = "{$route['function']}({$value});";
+                $functionText = "{$route->function}({$value});";
                 eval($functionText);
             } catch (\TypeError $th) {
                 if($value !== "") $value = ', '.$value;
-                $functionText = "{$route['function']}(\$GLOBALS['request'] {$value});";
+                $functionText = "{$route->function}(\$GLOBALS['request'] {$value});";
                 eval($functionText);
             }
 

@@ -199,6 +199,11 @@
         }, $array));
     }
 
+    function str_replace_first($from, $to, $content){
+        $from = '/'.preg_quote($from, '/').'/';
+        return preg_replace($from, $to, $content, 1);
+    }
+
     function clearEmpty(&$array){
         $array = values(array_filter($array,function($d){
             return $d !="";
@@ -313,4 +318,39 @@
 
      function method_field($method){
          return '<input type="hidden" name="_method" value="'.$method.'">';
+     }
+
+     function route($name, $params=[]){
+        $target_route = null;
+        foreach(Route::$routes as $routes){
+            foreach($routes as $route){
+                if(($route->name ?? '') === $name){
+                    $target_route = $route;
+                    break 2;
+                }
+            }
+        }
+
+        if(!$target_route){
+            throw new Exception('route not found.');
+        }
+
+        if(count($params) !== count($target_route->params)){
+            throw new Exception('route params not match.');
+        }
+
+        $uri = mb_substr($target_route->pattern, 2, -2);
+
+        if(keys($params) === range(0, count($params) - 1)){
+            $params = array_combine(values($target_route->params), values($params));
+        }
+
+        foreach($target_route->params as $key){
+            if(!array_key_exists($key, $params)){
+                throw new Exception('route params not match.');
+            }
+            $uri = str_replace_first('(.*)', $params[$key], $uri);
+        }
+        $uri = str_replace('\/', '/', $uri);
+        return url($uri);
      }
