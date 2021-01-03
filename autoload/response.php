@@ -51,7 +51,7 @@
                 header('Content-Type: text/html;charset=UTF-8');
                 // header('Content-Type: text/plain');
 
-                if(in_array('request', keys($params)))
+                if(array_key_exists('request', $params))
                     throw new \Exception('傳遞模板參數 request 是 保留字!');
 
                 $params['request'] = $GLOBALS['request'];
