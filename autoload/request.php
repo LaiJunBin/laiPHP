@@ -85,6 +85,41 @@
             return new Collection($_POST);
         }
 
+        public function file($name=null){
+            if($name === null){
+                $files = [];
+                foreach($_FILES as $key => $file){
+                    $files[$key] = $this->file($key);
+                }
+                return $files;
+            }
+
+            if(!array_key_exists($name, $_FILES))
+                return null;
+
+            if(is_array($_FILES[$name]['name'])){
+                $files = [];
+                for($i = 0; $i < count($_FILES[$name]['name']); $i++){
+                    $files[] = new FormFile(
+                        $_FILES[$name]['name'][$i],
+                        $_FILES[$name]['type'][$i],
+                        $_FILES[$name]['tmp_name'][$i],
+                        $_FILES[$name]['error'][$i],
+                        $_FILES[$name]['size'][$i],
+                    );
+                }
+                return new Collection($files);
+            } else {
+                return new FormFile(
+                    $_FILES[$name]['name'],
+                    $_FILES[$name]['type'],
+                    $_FILES[$name]['tmp_name'],
+                    $_FILES[$name]['error'],
+                    $_FILES[$name]['size'],
+                );
+            }
+        }
+
         public function headers($key=null){
             if($key !== null)
                 return apache_request_headers()[$key] ?? null;
