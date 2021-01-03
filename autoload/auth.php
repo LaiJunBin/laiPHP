@@ -22,6 +22,9 @@
 
             $data = $_SESSION['user']['data'];
             $class = $_SESSION['user']['class'];
+            if(!class_exists($class)){
+                include_model($class);
+            }
             return new $class($data);
         }
 
