@@ -1,6 +1,6 @@
 # PHP Framework
 
-> 使用範例(API)：　[todolist](https://github.com/LaiJunBin/laiPHP_TodoList)
+> `舊`使用範例(API)：　[todolist](https://github.com/LaiJunBin/laiPHP_TodoList)
 
 ## 基本檔案目錄
 ```
@@ -62,6 +62,14 @@ Response(res=null)        | 產生Response()物件
 get_mime_type(filename)  | 取得檔案的mime type
 old(key, default) | 取得舊的輸入資料
 method_field(method) | 產生表單欺騙隱藏欄位
+str_replace_first(search, replace, subject) | 字串取代(只取代第一筆)
+clean_url(url)          | 將url多餘的/清除
+public_path(path)       | 取得public path
+assets_path(path)       | 取得assets path
+route(name, params=[])     | 取得特定名稱路由的url，可帶入參數
+include_model(model)           | 引入 Model
+include_models(models=[])           | 引入多個Model
+
 
 
 > request.php
@@ -74,6 +82,7 @@ status                    | 取得Http Response Code
 method                    | 取得 方法 GET POST ....
 get(array,data)           | 取得GET資料
 post(array)               | 取得POST資料
+file(name)                | 取得FILE
 json(array,key)           | 取得JSON資料
 all(array)                | 依順序回傳第一個非空的資料，順序為JSON,POST,GET
 headers(key=null)         | 回傳對應的header，如果key=null將回傳所有header
@@ -88,6 +97,7 @@ Method              | Description
 json(json_data=[])        | json response
 code(code=200)            | 設定http_response_code
 redirect(url)             | 轉址
+redirectRoute(name, params=[])  | 轉址到特定route
 view(file,params=[])      | 顯示views中的文件，也可以傳入參數
 log(status_code=200)      | 在主控台打印Response Log
 withInput()               | 可搭配 old() 使用，將使用者輸入的值放回input
@@ -108,10 +118,16 @@ last()  | 取得最後一筆資料
 count() | 取得集合中的資料數
 map(func)   | map處理
 filter(func)      | filter處理
+find(func)        | 取得第一筆符合條件的資料
 forEach(func)     | foreach處理
 fetch(keys)       | 同 array_fetch
 only(keys)       | 同 array_only
 to_array()    | 取得陣列
+recursive(func) | 遞迴集合
+sum()             | 加總
+flat()            | 攤平一層
+join(glup)        | join資料
+
 
 > auth.php
 
@@ -145,6 +161,7 @@ DB為基底類別
 Method           | Description
 --------------|------
 DB::execute(SQL) | 執行SQL語法
+Example::count()  | 取得Example表的資料筆數
 Example::create([key=>value,...])  | 對Example表新增資料
 Example::update([key=>value,...],[condition=>value,...])  | 對Example表修改資料
 Example::delete([condition=>value,...])  | 對Example表刪除資料
@@ -194,6 +211,13 @@ $this->through(模型, 外鍵, 主鍵)->hasMany(模型, 外鍵, 主鍵);  | 多�
       </tr>
    </thead>
    <tbody>
+      <tr>
+         <td>#include_model('Model')</td>
+         <td>
+            無
+         </td>
+         <td>執行#後面的語法，在模板最上面引入Model，也可以用來宣告變數</td>
+      </tr>
       <tr>
          <td>{{ $html }}</td>
          <td>
