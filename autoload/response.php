@@ -8,6 +8,9 @@
 
         public function json($json_data=[]){
             header('Content-Type: application/json');
+            if($json_data instanceof Collection){
+                $json_data = $json_data->to_array();
+            }
             echo json_encode($json_data);
             return $this;
         }
