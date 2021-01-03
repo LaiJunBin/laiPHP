@@ -463,8 +463,8 @@
                                 $pk = 'param_'.bin2hex(random_bytes(5));
                                 $params[$pk] = eval('return '.$match.';');
                                 $$pk = $params[$pk];
-                                $match = preg_replace('/[\$\(\)]/', '\\\$0', $match);
-                                $pattern = '('.$match.')';
+                                // $match = preg_replace('/[\$\(\)]/', '\\\$0', $match);
+                                $pattern = '('.preg_replace('/[\$\(\)]/', '\\\$0', $match).')';
                                 $temp[$params['for1']] = preg_replace('/'.$pattern.'/', '$'.$pk, $temp[$params['for1']]);
                             }
                         }
