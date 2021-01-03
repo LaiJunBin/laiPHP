@@ -180,7 +180,7 @@
         $key = implode('.', array_slice(explode('.', $key), 1));
 
         if($key == ""){
-            $a[$current_key] = $b[$current_key];
+            $a[$current_key] = $b[$current_key] ?? null;
             return;
         }
 
