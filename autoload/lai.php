@@ -109,11 +109,13 @@
                 $html = trim($html_array[$i]);
                 if(strpos($html, '#') === 0){
                     $syntax = '@'.mb_substr($html, 1).';';
-                    $err_code = 0;
-                    eval($syntax);
-                    if($err_code === 0)
-                        $html_array[$i] = '';
-
+                    try {
+                        $err_code = 0;
+                        eval($syntax);
+                        if($err_code === 0)
+                            $html_array[$i] = '';
+                    } catch (\Throwable $th) {
+                    }
                 }
             }
 
