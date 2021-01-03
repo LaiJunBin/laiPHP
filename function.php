@@ -320,7 +320,7 @@
          return '<input type="hidden" name="_method" value="'.$method.'">';
      }
 
-     function route($name, $params=[]){
+     function route($name, $params=[], $parseURL=true){
         $target_route = null;
         foreach(Route::$routes as $routes){
             foreach($routes as $route){
@@ -352,5 +352,20 @@
             $uri = str_replace_first('(.*)', $params[$key], $uri);
         }
         $uri = str_replace('\/', '/', $uri);
-        return url($uri);
+        if($parseURL){
+            return url($uri);
+        }
+
+        return $uri;
+     }
+
+     function include_model($model){
+        $path = 'app/'.$model.'.php';
+        include_once($path);
+     }
+
+     function include_models($models=[]){
+        foreach($models as $model){
+            include_model($model);
+        }
      }
