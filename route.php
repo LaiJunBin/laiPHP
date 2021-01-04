@@ -86,7 +86,7 @@
             $pattern = preg_replace("/{.[^}]*}/","(.*)",$url);
             $pattern = str_replace('/','\/',$pattern);
             $pattern = str_replace('?','\?',$pattern);
-            $pattern = '/^'.$pattern.'$/';
+            $pattern = "/(?={$pattern}\?)^{$pattern}\?.*|^{$pattern}$/";
 
             $url = explode('/',$url);
             clearEmpty($url);
@@ -107,6 +107,7 @@
 
         static function hasUri($url,$method='get'){
             $isCorrect = false;
+            $url = explode('?', $url)[0];
             $url = explode('/',$url);
             clearEmpty($url);
             $url_count = count($url);

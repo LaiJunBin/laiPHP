@@ -53,6 +53,10 @@
     }
 
     clearEmpty($url);
+    $url = implode('/',$url);
+    $url = explode('?', $url)[0];
+    $url = explode('/', $url);
+    clearEmpty($url);
     $url_count = count($url);
     $url = implode('/',$url);
 
