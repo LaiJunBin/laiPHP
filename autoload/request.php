@@ -30,21 +30,21 @@
             $this->__params = $params;
         }
 
-        public function all($keys=null){
-            $json = $this->json($keys);
+        public function all($keys=null, $default=null){
+            $json = $this->json($keys, $default);
             if($json)
                 return $json;
 
             if(count($_POST))
-                return $this->post($keys);
+                return $this->post($keys, $default);
 
             if(count($_GET))
-                return $this->get($keys);
+                return $this->get($keys, $default);
 
             return file_get_contents('PHP://input');
         }
 
-        public function json($keys=null){
+        public function json($keys=null, $default=null){
             $raw_data = file_get_contents('PHP://input');
             $json_data = json_decode($raw_data, true);
             if(json_last_error() !== JSON_ERROR_NONE)
@@ -54,31 +54,31 @@
                 if(is_array($keys)){
                     return new Collection(array_only($json_data, $keys));
                 } else {
-                    return $json_data[$keys] ?? null;
+                    return $json_data[$keys] ?? $default;
                 }
             }
 
             return new Collection($json_data);
         }
 
-        public function get($keys=null){
+        public function get($keys=null, $default=null){
             if($keys){
                 if(is_array($keys)){
                     return new Collection(array_only($_GET, $keys));
                 } else {
-                    return $_GET[$keys] ?? null;
+                    return $_GET[$keys] ?? $default;
                 }
             }
 
             return new Collection($_GET);
         }
 
-        public function post($keys=null){
+        public function post($keys=null, $default=null){
             if($keys){
                 if(is_array($keys)){
                     return new Collection(array_only($_POST, $keys));
                 } else {
-                    return $_POST[$keys] ?? null;
+                    return $_POST[$keys] ?? $default;
                 }
             }
 
