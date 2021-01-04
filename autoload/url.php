@@ -32,7 +32,7 @@
         }
 
         public function previous(){
-            return $_SERVER['HTTP_REFERER'];
+            return $_SERVER['HTTP_REFERER'] ?? url('/');
         }
 
         public function __toString(){
