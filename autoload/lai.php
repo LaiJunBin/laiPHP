@@ -10,15 +10,19 @@
             fclose($html_file);
 
             self::_extends($html_array);
-            self::_include($html_array, $params);
-            self::_hashtag($html_array, $params);
-            self::_yield($html_array, $params);
-            self::_section($html_array, $params);
-            self::_decrypt_for_expression($html_array, $params);
-            self::_decrypt_if_expression($html_array, $params);
-            self::_decrypt($html_array, $params);
+            $html_text = null;
+            while($html_text !== implode(' ', $html_array)){
+                $html_text = implode(' ', $html_array);
+                self::_hashtag($html_array, $params);
+                self::_decrypt_for_expression($html_array, $params);
+                self::_include($html_array, $params);
+                self::_decrypt_for_expression($html_array, $params);
+                self::_yield($html_array, $params);
+                self::_section($html_array, $params);
+                self::_decrypt_if_expression($html_array, $params);
+                self::_decrypt($html_array, $params);
+            }
 
-            $html_text = implode(' ', $html_array);
             preg_match_all('/(?=!)(!{{\s*([^}]*)\s*}})|({{\s*([^}]*)\s*}})/', $html_text, $matches);
             foreach($params as $key =>$value){
                 $$key = $value;
@@ -74,13 +78,12 @@
             preg_match_all('/(?=@include\([^\b\)\[]+\))@include\(([^\b\)\[]+)\)|@include\(([^\b]+?\])[^\b]*?\)/', $html_text, $matches);
             while(count($matches[0])){
                 for($i = 0; $i < count($matches[0]); $i++){
-                    $match = $matches[1][$i] | $matches[2][$i];
+                    $match = $matches[1][$i] | ($matches[2][$i] ?? '');
                     $match = str_replace(PHP_EOL, '', $match);
                     preg_match_all('/(?=^[\'\"])[\'\"]([^\s]+)[\'\"]|^([^\s]+)/', $match, $arguments);
                     $include_file = $arguments[1][0] | $arguments[2][0];
                     $match = str_replace_first($arguments[0][0], '', $match);
                     $match = trim(str_replace_first(',', '', $match));
-
                     if($match){
                         preg_match_all('/([^\'](\$([\w\->]+(\([^)]*\))*)*))/', $match, $variables);
                         foreach($variables[2] as $variable){
@@ -470,7 +473,8 @@
                     foreach($variables[1] as $index_variable){
                         if(array_key_exists($index_variable, $params)){
                             try {
-                                $temp[$params['for1']] = preg_replace('/(\\'.$match.')([\s\W])/', "'".eval('return @'.$match.';')."'$2", $temp[$params['for1']]);
+                                $pattern = '/('.preg_replace('/[\$\(\)]/', '\\\$0', $match).')([\s\W])/';
+                                $temp[$params['for1']] = preg_replace($pattern, "'".eval('return @'.$match.';')."'$2", $temp[$params['for1']]);
                             } catch (\Throwable $th) {
                                 $pk = 'param_'.bin2hex(random_bytes(5));
                                 $params[$pk] = eval('return '.$match.';');
@@ -496,7 +500,8 @@
                     }, $variables[1])) === false){
                         try {
                             $syntax = "return ".$variables[1][0].';';
-                            $temp[$params['for1']] = preg_replace('/(\\'.$variables[1][0].')([\s\W])/', "'".eval($syntax)."'$2", $temp[$params['for1']]);
+                            $pattern = '/('.preg_replace('/[\$\(\)]/', '\\\$0', $variables[1][0]).')([\s\W])/';
+                            $temp[$params['for1']] = preg_replace($pattern, "'".eval($syntax)."'$2", $temp[$params['for1']]);
                         } catch (\Throwable $th) {
                             $pk = 'param_'.bin2hex(random_bytes(5));
                             $params[$pk] = eval('return '.$match.';');
