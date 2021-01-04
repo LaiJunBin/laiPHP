@@ -9,6 +9,10 @@
             }
             fclose($html_file);
 
+            return self::decryptHTML($html_array, $params);
+        }
+
+        public static function decryptHTML($html_array, $params){
             self::_extends($html_array);
             $html_text = null;
             while($html_text !== implode(' ', $html_array)){
@@ -90,7 +94,17 @@
                             $param = eval('return '.$variable.';');
                             $match = str_replace_first($variable, "'".$param."'", $match);
                         }
+
                         $assign_params = eval('return '.$match.';');
+
+                        // $pk = 'param_'.bin2hex(random_bytes(5));
+                        // $params[$pk] = eval('return '.$match.';');
+                        // $$pk = $params[$pk];
+                        // // $match = preg_replace('/[\$\(\)]/', '\\\$0', $match);
+                        // $pattern = '('.preg_replace('/[\$\(\)]/', '\\\$0', $match).')';
+                        // $temp[$params['for1']] = preg_replace('/'.$pattern.'/', '$'.$pk, $temp[$params['for1']]);
+
+
                         foreach($assign_params as $k => $v){
                             $params[$k] = $v;
                             $$k = $v;
@@ -102,7 +116,10 @@
                     if(!file_exists($file)){
                         throw new Error('include template error!, template not found.');
                     }
-                    $html_text = str_replace_first($matches[0][$i], file_get_contents($file), $html_text);
+
+                    $include_html_array = explode(PHP_EOL, file_get_contents($file));
+                    $include_html = self::decryptHTML($include_html_array, $params);
+                    $html_text = str_replace_first($matches[0][$i], $include_html, $html_text);
                 }
                 preg_match_all('/@include\(([^\b)]+)\)/', $html_text, $matches);
             }
