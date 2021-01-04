@@ -10,7 +10,7 @@
             fclose($html_file);
 
             self::_extends($html_array);
-            self::_include($html_array);
+            self::_include($html_array, $params);
             self::_hashtag($html_array, $params);
             self::_yield($html_array, $params);
             self::_section($html_array, $params);
@@ -66,33 +66,35 @@
             }
         }
 
-        private static function _include(&$html_array){
-            $check_include = true;
-            while($check_include){
-                $check_include = false;
-                for($i = 0; $i < count($html_array); $i++){
-                    if(mb_strpos(trim($html_array[$i]), '@include') === 0){
-                        $check_include = true;
-                        $include_file = trim(self::get_condition($html_array[$i]),'\'');
-                        $template_dir = ['app', 'views'];
-                        array_push($template_dir, ...explode('.', $include_file));
-                        $file = implode('/', $template_dir).'.lai.php';
-                        if(!file_exists($file)){
-                            throw new Error('include template error!, template not found.');
+        private static function _include(&$html_array, &$params){
+            $html_text=  implode(' ', $html_array);
+            preg_match_all('/@include\(([^\b)]+)\)/', $html_text, $matches);
+            while(count($matches[0])){
+                for($i = 0; $i < count($matches[0]); $i++){
+                    $match = $matches[1][$i];
+                    $match = str_replace(PHP_EOL, '', $match);
+                    preg_match_all('/(?=^[\'\"])[\'\"]([^\s]+)[\'\"]|^([^\s]+)/', $match, $arguments);
+                    $include_file = $arguments[1][0] | $arguments[2][0];
+                    $match = str_replace_first($arguments[0][0], '', $match);
+                    $match = trim(str_replace_first(',', '', $match));
+                    if($match){
+                        $assign_params = eval('return '.$match.';');
+                        foreach($assign_params as $k => $v){
+                            $params[$k] = $v;
                         }
-                        $html_file = fopen($file, 'r');
-                        $array = [];
-                        while(($line = fgets($html_file)) !== false){
-                            $array[] = $line;
-                        }
-                        fclose($html_file);
-                        array_splice($html_array, $i, 1, $array);
-                        break;
-                        // $html_array = $array;
                     }
+                    $template_dir = ['app', 'views'];
+                    array_push($template_dir, ...explode('.', $include_file));
+                    $file = implode('/', $template_dir).'.lai.php';
+                    if(!file_exists($file)){
+                        throw new Error('include template error!, template not found.');
+                    }
+                    $html_text = str_replace_first($matches[0][$i], file_get_contents($file), $html_text);
                 }
-
+                preg_match_all('/@include\(([^\b)]+)\)/', $html_text, $matches);
             }
+
+            $html_array = explode(PHP_EOL, $html_text);
         }
 
         private static function _hashtag(&$html_array, &$params){
