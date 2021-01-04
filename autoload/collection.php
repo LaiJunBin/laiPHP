@@ -105,12 +105,15 @@
 
         public function recursive($func){
             $res = $func($this);
-            if($res instanceof Collection){
+            if(!$res)
+                return;
+
+            if(get_class($res) === Collection::class){
                 return $res->map(function($d) use($func){
                     return $d->recursive($func);
                 });
             }
-            return $res;
+            return $res->recursive($func);
         }
 
         public function sum(){
