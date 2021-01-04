@@ -86,6 +86,7 @@
             $pattern = preg_replace("/{.[^}]*}/","(.*)",$url);
             $pattern = str_replace('/','\/',$pattern);
             $pattern = str_replace('?','\?',$pattern);
+            $pattern_uri = $pattern;
             $pattern = "/(?={$pattern}\?)^{$pattern}\?.*|^{$pattern}$/";
 
             $url = explode('/',$url);
@@ -97,6 +98,7 @@
                 'script'=>$script,
                 'function'=>$function,
                 'pattern'=>$pattern,
+                'pattern_uri' => $pattern_uri,
                 'len'=>$url_count,
                 'middleware' => self::$current_middleware,
                 'params' => $params[1]
