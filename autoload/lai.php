@@ -68,19 +68,29 @@
 
         private static function _include(&$html_array, &$params){
             $html_text=  implode(' ', $html_array);
-            preg_match_all('/@include\(([^\b)]+)\)/', $html_text, $matches);
+            foreach($params as $key =>$value){
+                $$key = $value;
+            }
+            preg_match_all('/(?=@include\([^\b\)\[]+\))@include\(([^\b\)\[]+)\)|@include\(([^\b]+?\])[^\b]*?\)/', $html_text, $matches);
             while(count($matches[0])){
                 for($i = 0; $i < count($matches[0]); $i++){
-                    $match = $matches[1][$i];
+                    $match = $matches[1][$i] | $matches[2][$i];
                     $match = str_replace(PHP_EOL, '', $match);
                     preg_match_all('/(?=^[\'\"])[\'\"]([^\s]+)[\'\"]|^([^\s]+)/', $match, $arguments);
                     $include_file = $arguments[1][0] | $arguments[2][0];
                     $match = str_replace_first($arguments[0][0], '', $match);
                     $match = trim(str_replace_first(',', '', $match));
+
                     if($match){
+                        preg_match_all('/([^\'](\$([\w\->]+(\([^)]*\))*)*))/', $match, $variables);
+                        foreach($variables[2] as $variable){
+                            $param = eval('return '.$variable.';');
+                            $match = str_replace_first($variable, "'".$param."'", $match);
+                        }
                         $assign_params = eval('return '.$match.';');
                         foreach($assign_params as $k => $v){
                             $params[$k] = $v;
+                            $$k = $v;
                         }
                     }
                     $template_dir = ['app', 'views'];
