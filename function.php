@@ -2,7 +2,7 @@
     // 經常使用的方法定義在這邊
 
     $dd_options = [
-        'max_object_depth' => 7,
+        'max_object_depth' => 6,
         'tab_size' => 4,
         'pre_style' => 'background:#333; font-size:16px; color:#fff; padding:10px;',
         'styles' => [
@@ -298,29 +298,8 @@
         }
      }
 
-     function url($path){
-
-        $is_cli_server = php_sapi_name() == 'cli-server';
-        $path = array_filter(explode('/', $path), function($x){
-            return $x !== '.';
-        });
-
-        clearEmpty($path);
-        $path = implode('/', $path);
-
-        if(!$is_cli_server){
-            $current_dir = str_replace('\\','/',getcwd());
-            $root = $_SERVER['DOCUMENT_ROOT'];
-            $except_url = explode('/',str_replace($root,'',$current_dir));
-
-            clearEmpty($except_url);
-            $path = explode('/', ('/'.implode('/', $except_url).'/'.$path));
-            clearEmpty($path);
-            $path = implode('/', $path);
-            return '/'.$path;
-        }
-
-        return $path;
+     function url($path=''){
+        return new URL($path);
      }
 
      function clean_url($url){
