@@ -34,11 +34,21 @@
 
             for($i = 0; $i < count($matches[0]); $i++){
                 if($matches[1][$i]){
-                    $syntax = "return {$matches[2][$i]} ?? '';";
-                    $html_text = str_replace($matches[1][$i], eval($syntax), $html_text);
+                    try {
+                        $syntax = "return {$matches[2][$i]} ?? '';";
+                        $html_text = str_replace($matches[1][$i], eval($syntax), $html_text);
+                    } catch (\Throwable $th) {
+                        $err_type = get_class($th);
+                        throw new $err_type($matches[2][$i]);
+                    }
                 }else{
-                    $syntax = "return {$matches[4][$i]} ?? '';";
-                    $html_text = str_replace($matches[3][$i], htmlspecialchars(eval($syntax)), $html_text);
+                    try {
+                        $syntax = "return {$matches[4][$i]} ?? '';";
+                        $html_text = str_replace($matches[3][$i], htmlspecialchars(eval($syntax)), $html_text);
+                    } catch (\Throwable $th) {
+                        $err_type = get_class($th);
+                        throw new $err_type($matches[4][$i]);
+                    }
                 }
             }
 
