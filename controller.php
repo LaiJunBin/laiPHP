@@ -68,7 +68,11 @@
     $contains_page = false;
     foreach(Route::$routes[$method] ?? [] as $route){
         if($url_count == $route->len && preg_match($route->pattern, $url, $matches)){
-            $GLOBALS['request'] = new Request(array_combine($route->params, array_slice($matches, 1)));
+            $params = [];
+            if(count($route->params)){
+                $params = array_combine($route->params, array_slice($matches, -count($route->params)));
+            }
+            $GLOBALS['request'] = new Request($params);
             foreach($route->middleware as $name){
                 if(!containsKey($routeMiddleware, $name))
                     throw new Exception('Middleware not found.');
@@ -91,10 +95,12 @@
             }
 
             include('app/controller/'.$route->script.'.php');
-            $values = array_map(function($value){
-                return '"'.$value.'"';
-            },array_slice($matches,1));
-
+            $values = [];
+            if(count($route->params)){
+                $values = array_map(function($value){
+                    return '"'.$value.'"';
+                }, array_slice($matches, -count($route->params)));
+            }
             $value = implode(',',$values);
 
             try {
