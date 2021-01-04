@@ -75,6 +75,11 @@
             return $this;
         }
 
+        public function back(){
+            header("location:".url()->previous());
+            return $this;
+        }
+
         public function redirectRoute($route_name, $params=[]){
             return $this->redirect(route($route_name, $params, false));
         }
