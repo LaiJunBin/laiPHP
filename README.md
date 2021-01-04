@@ -54,7 +54,8 @@ containsKey(array,key)    | 判斷陣列中是否存在索引為key
 contains(array,data)      | 判斷陣列中是否存在資料為data
 array_fetch(array, keys)  | 為陣列中所有元素抓取keys的元素，階層以.分隔
 array_only(array, keys)   | 為陣列中第一個元素抓取keys的元素，階層以.分隔
-array_get(array, key)     | 以key取得陣列中的元素，階層以.分隔
+array_get(array, key, default)     | 以key取得陣列中的元素，階層以.分隔
+array_forget(array, key, exception=false)     | 以key刪除陣列中的元素，階層以.分隔，若exception為true，找不到name將會報錯
 array_copy(a, b, key)     | 複製b陣列中key的資料至a陣列
 array_map_recursive(array, func) | 遞迴執行array_map
 clearEmpty(array)         | 清除陣列中所有空的元素
@@ -69,7 +70,7 @@ assets_path(path)       | 取得assets path
 route(name, params=[])     | 取得特定名稱路由的url，可帶入參數
 include_model(model)           | 引入 Model
 include_models(models=[])           | 引入多個Model
-
+session()                     | 取得 session 物件
 
 
 > request.php
@@ -98,6 +99,7 @@ json(json_data=[])        | json response
 code(code=200)            | 設定http_response_code
 redirect(url)             | 轉址
 redirectRoute(name, params=[])  | 轉址到特定route
+back()  | 回到上一頁
 view(file,params=[])      | 顯示views中的文件，也可以傳入參數
 log(status_code=200)      | 在主控台打印Response Log
 withInput()               | 可搭配 old() 使用，將使用者輸入的值放回input
@@ -128,6 +130,15 @@ sum()             | 加總
 flat()            | 攤平一層
 join(glup)        | join資料
 
+> session.php
+
+Session 物件
+Method              | Description
+--------------|------
+has(name)         | session是否存在，name階層以.分隔
+get(name, default) | 取得session值，name階層以.分隔
+put(name, value)   | 設定session
+forget(name, exception=false) | 刪除session，name階層以.分隔，若exception為true，找不到name將會報錯
 
 > auth.php
 
@@ -140,6 +151,15 @@ logout()     | 登出
 check()      | 檢查是否登入
 user()       | 取得登入的使用者
 get_user_class() | 取得user使用的class
+
+> url.php
+
+URL 物件
+
+Method              | Description
+--------------|------
+current()         | 取得當前URL
+previous()        | 取得前一個URL
 
 > 命令使用
 
