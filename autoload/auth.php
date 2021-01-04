@@ -2,26 +2,26 @@
 
     class Auth {
         public static function login($user){
-            $_SESSION['user'] = [
+            session()->put('user', [
                 'class' => get_class($user),
                 'data' => $user->to_array()
-            ];
+            ]);
         }
 
         public static function logout(){
-            unset($_SESSION['user']);
+            session()->forget('user');
         }
 
         public static function check(){
-            return isset($_SESSION['user']);
+            return session()->has('user');
         }
 
         public static function user(){
             if(!self::check())
                 return null;
 
-            $data = $_SESSION['user']['data'];
-            $class = $_SESSION['user']['class'];
+            $data = session()->get('user.data');
+            $class = session()->get('user.class');
             if(!class_exists($class)){
                 include_model($class);
             }

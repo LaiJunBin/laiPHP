@@ -35,9 +35,9 @@
             }
 
             $params['errors'] = [];
-            if(isset($_SESSION['errors'])){
-                $params['errors'] = new Collection($_SESSION['errors']);
-                unset($_SESSION['errors']);
+            if(session()->has('errors')){
+                $params['errors'] = session()->errors;
+                session()->forget('errors');
             }
 
             if(count($filenames) == 0){
@@ -85,12 +85,12 @@
         }
 
         public function withInput(Request $request){
-            $_SESSION['input'] = $request->all()->to_array();
+            session()->put('input', $request->all()->to_array());
             return $this;
         }
 
         public function withErrors($params=[]){
-            $_SESSION['errors'] = $params;
+            session()->put('errors', $params);
             return $this;
         }
 
