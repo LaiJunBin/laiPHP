@@ -174,18 +174,39 @@
         return array_fetch([$array], ...$keys)[0];
     }
 
-    function array_get($array, $key){
+    function array_get($array, $key, $default=null){
         $current_key = explode('.', $key)[0];
         $key = implode('.', array_slice(explode('.', $key), 1));
 
         if($key == ""){
-            return $array[$current_key];
+            return $array[$current_key] ?? $default;
         }
 
         if(!containsKey($array, $current_key))
             return false;
 
-        return array_get($array[$current_key], $key);
+        return array_get($array[$current_key], $key, $default);
+    }
+
+    function array_forget(&$array, $key, $exception=false){
+        $current_key = explode('.', $key)[0];
+        $key = implode('.', array_slice(explode('.', $key), 1));
+
+        if($key == ""){
+            if(array_key_exists($current_key, $array))
+                unset($array[$current_key]);
+            else if($exception)
+                throw new Exception('array key not found.');
+        }
+
+        if(!containsKey($array, $current_key)){
+            if($exception)
+                throw new Exception('array key not found.');
+
+            return false;
+        }
+
+        array_forget($array[$current_key], $key, $exception);
     }
 
     function array_copy(&$a, &$b, $key){
@@ -318,8 +339,8 @@
      }
 
      function old($key, $default=''){
-        $value = $_SESSION['input'][$key] ?? $default;
-        unset($_SESSION['input'][$key]);
+        $value = session()->input->$key ?? $default;
+        session()->forget('input.'.$key);
         return $value;
      }
 
@@ -346,7 +367,7 @@
             throw new Exception('route params not match.');
         }
 
-        $uri = mb_substr($target_route->pattern, 2, -2);
+        $uri = $target_route->pattern_uri;
 
         if(keys($params) === range(0, count($params) - 1)){
             $params = array_combine(values($target_route->params), values($params));
@@ -375,4 +396,8 @@
         foreach($models as $model){
             include_model($model);
         }
+     }
+
+     function session(){
+         return new Session();
      }
