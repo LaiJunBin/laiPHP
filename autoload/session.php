@@ -21,6 +21,12 @@
             return $value;
         }
 
+        public function pop($name, $default=null, $exception=false){
+            $value = $this->get($name, $default);
+            $this->forget($name, $exception);
+            return $value;
+        }
+
         public function has($name){
             return array_get($_SESSION, $name) != null;
         }
