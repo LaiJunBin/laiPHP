@@ -273,7 +273,9 @@
             include_once('app/'.$table.'.php');
             if($this->through ?? false){
                 $results = $this->data->map(function($tmp) use($table, $foreign_key, $id){
-                    return $table::find([$id => $tmp->$foreign_key]);
+                    $row = $table::find([$id => $tmp->$foreign_key]);
+                    $row->_tmp = $tmp;
+                    return $row;
                 });
                 return $results;
             }else{
