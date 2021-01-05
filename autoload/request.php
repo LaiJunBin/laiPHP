@@ -58,7 +58,10 @@
                 }
             }
 
-            return new Collection($json_data);
+            if(is_array($json_data))
+                return new Collection($json_data);
+
+            return $json_data;
         }
 
         public function get($keys=null, $default=null){
