@@ -492,8 +492,39 @@
             }
 
             for($params['for1'] = 0; $params['for1'] < count($temp); $params['for1']++){
-                preg_match_all('/([^\'](\$([\w\->]+(\([^)]*\))*)*))/', $temp[$params['for1']], $matches);
+                $err_code = 0;
+                set_error_handler(function ($errNo, $errStr) use(&$err_code){
+                    $err_code = 1;
+                });
+                preg_match_all('/(?=!)(!{{\s*([^}]*)\s*}})|({{\s*([^}]*)\s*}})/', $temp[$params['for1']], $matches);
 
+                for($i = 0; $i < count($matches[0]); $i++){
+                    $err_code = 0;
+
+                    if($matches[1][$i]){
+                        try {
+                            $syntax = "return {$matches[2][$i]};";
+                            $res = eval($syntax);
+                            if($err_code === 0){
+                                $temp[$params['for1']] = str_replace($matches[1][$i], $res, $temp[$params['for1']]);
+                            }
+                        } catch (\Throwable $th) {
+                        }
+                    }else{
+                        try {
+                            $syntax = "return {$matches[4][$i]};";
+                            $res = eval($syntax);
+                            if($err_code === 0){
+                                $temp[$params['for1']] = str_replace($matches[3][$i], htmlspecialchars($res), $temp[$params['for1']]);
+                            }
+                        } catch (\Throwable $th) {
+                        }
+                    }
+                }
+
+                restore_error_handler();
+
+                preg_match_all('/([^\'](\$([\w\->]+(\([^)]*\))*)*))/', $temp[$params['for1']], $matches);
                 foreach($matches[2] as $match){
                     preg_match_all('/\$([^\W\->]+)/', $match, $variables);
 
@@ -518,7 +549,6 @@
 
 
                 preg_match_all('/{{\s*([^}]*)\s*}}/', $temp[$params['for1']], $matches);
-
                 if(count($matches[1])){
                     preg_match_all('/[^\']*(\$+[\w]+)/', $temp[$params['for1']], $variables);
 
