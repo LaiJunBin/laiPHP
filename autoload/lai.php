@@ -15,12 +15,11 @@
         public static function decryptHTML($html_array, $params){
             self::_extends($html_array);
             $html_text = null;
-            while($html_text !== implode(' ', $html_array)){
-                $html_text = implode(' ', $html_array);
+            while($html_text !== implode(PHP_EOL, $html_array)){
+                $html_text = implode(PHP_EOL, $html_array);
                 self::_hashtag($html_array, $params);
                 self::_decrypt_for_expression($html_array, $params);
                 self::_include($html_array, $params);
-                self::_decrypt_for_expression($html_array, $params);
                 self::_yield($html_array, $params);
                 self::_section($html_array, $params);
                 self::_decrypt_if_expression($html_array, $params);
@@ -85,7 +84,7 @@
         }
 
         private static function _include(&$html_array, &$params){
-            $html_text=  implode(' ', $html_array);
+            $html_text=  implode(PHP_EOL, $html_array);
             foreach($params as $key =>$value){
                 $$key = $value;
             }
@@ -100,13 +99,28 @@
                     $match = trim(str_replace_first(',', '', $match));
                     if($match){
                         preg_match_all('/([^\'](\$([\w\->]+(\([^)]*\))*)*))/', $match, $variables);
-                        foreach($variables[2] as $variable){
-                            $param = eval('return '.$variable.';');
-                            $match = str_replace_first($variable, "'".$param."'", $match);
+
+                        try {
+                            $assign_params = eval('return '.$match.';');
+                            foreach($assign_params as $k => $v){
+                                $params[$k] = $v;
+                                $$k = $v;
+                            }
+                        } catch (\Throwable $th) {
+                            foreach($variables[2] as $variable){
+                                try {
+                                    $param = eval('return '.$variable.';');
+                                    $match = str_replace_first($variable, "'".$param."'", $match);
+                                } catch (\Throwable $th) {
+                                    $pk = 'param_'.bin2hex(random_bytes(5));
+                                    $params[$pk] = eval('return '.$variable.';');
+                                    $$pk = $params[$pk];
+                                    $match = str_replace_first($variable, "$".$pk, $match);
+                                }
+                            }
                         }
 
-                        $assign_params = eval('return '.$match.';');
-
+                        // $assign_params = eval('return '.$match.';');
                         // $pk = 'param_'.bin2hex(random_bytes(5));
                         // $params[$pk] = eval('return '.$match.';');
                         // $$pk = $params[$pk];
@@ -115,10 +129,10 @@
                         // $temp[$params['for1']] = preg_replace('/'.$pattern.'/', '$'.$pk, $temp[$params['for1']]);
 
 
-                        foreach($assign_params as $k => $v){
-                            $params[$k] = $v;
-                            $$k = $v;
-                        }
+                        // foreach($assign_params as $k => $v){
+                        //     $params[$k] = $v;
+                        //     $$k = $v;
+                        // }
                     }
                     $template_dir = ['app', 'views'];
                     array_push($template_dir, ...explode('.', $include_file));
@@ -273,9 +287,13 @@
                             }else{
                                 $syntax = ('foreach('.$condition.'){ $local_params[mb_substr($index_variable,1)] = '.$index_variable.'; $res = self::for_assign_variable($temp, $local_params, $index_variable); array_push($array, ...$res["array"]);}');
                             }
+                            preg_match_all('/\$+([\w]+)/', $condition, $variables);
                             eval($syntax);
                             if(isset($res)){
                                 foreach($res['params'] as $key => $value){
+                                    if(in_array($key, $variables[1])){
+                                        continue;
+                                    }
                                     $$key = $value;
                                     $params[$key] = $value;
                                 }
@@ -454,7 +472,6 @@
             }
 
             $condition = self::get_condition($expression);
-
             $condition = eval("return {$condition};");
 
             if($condition){
@@ -497,7 +514,6 @@
                     $err_code = 1;
                 });
                 preg_match_all('/(?=!)(!{{\s*([^}]*)\s*}})|({{\s*([^}]*)\s*}})/', $temp[$params['for1']], $matches);
-
                 for($i = 0; $i < count($matches[0]); $i++){
                     $err_code = 0;
 
@@ -573,6 +589,7 @@
                 $array[] = $temp[$params['for1']];
 
             }
+
             return ['array' => $array, 'params' => $params];
         }
 
