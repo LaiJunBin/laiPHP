@@ -3,6 +3,7 @@
 
     $dd_options = [
         'max_object_depth' => 6,
+        'max_string_length' => 2000,
         'tab_size' => 4,
         'pre_style' => 'background:#333; font-size:16px; color:#fff; padding:10px;',
         'styles' => [
@@ -116,7 +117,7 @@
         } else {
             $type = gettype($param);
             $style = $dd_options['styles'][$type] ?? $dd_options['styles']['default'];
-            if(mb_strlen($param) <= 1000){
+            if(mb_strlen($param) <= $dd_options['max_string_length']){
                 echo '<span style="'.$style.'">';
                 var_dump($param);
                 echo '</span>';
