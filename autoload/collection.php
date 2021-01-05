@@ -79,12 +79,12 @@
         //     return $this->items[$index];
         // }
 
-        public function first(){
-            return $this->items[0];
+        public function first($default=null){
+            return $this->items[0] ?? $default;
         }
 
-        public function last(){
-            return $this->items[count($this->items)];
+        public function last($default=null){
+            return $this->items[count($this->items)] ?? $default;
         }
 
         public function countItems(){
