@@ -13,13 +13,27 @@
             }
         }
 
+        public static function __callStatic($name, $arguments){
+            switch($name){
+                case 'middleware':
+                    self::middlewareStatic($arguments[0], $arguments[1]);
+            }
+        }
+
+        public function __call($name, $arguments){
+            switch($name){
+                case 'middleware':
+                    $this->middlewareObject($arguments[0]);
+            }
+        }
+
         public function name($name){
             $this->name = $name;
             self::$route_table[$this->method][count(self::$route_table[$this->method])-1]['name'] = $name;
             return $this;
         }
 
-        public function middleware($middleware, $func=null){
+        public function middlewareObject($middleware, $func=null){
             if($func === null){
                 array_push($this->middleware, $middleware);
                 self::$route_table[$this->method][count(self::$route_table[$this->method])-1]['middleware'] = implode(', ', $this->middleware);
@@ -56,11 +70,11 @@
             self::$prefix = mb_substr(self::$prefix, 0, mb_strlen(self::$prefix)-mb_strlen($prefix)-1);
         }
 
-        // static function middlewareStatic($middleware, $func){
-        //     array_push(self::$current_middleware, $middleware);
-        //     $func();
-        //     array_pop(self::$current_middleware);
-        // }
+        static function middlewareStatic($middleware, $func){
+            array_push(self::$current_middleware, $middleware);
+            $func();
+            array_pop(self::$current_middleware);
+        }
 
         static function process($method,$url,$action){
             if(!containsKey(self::$routes,$method)){
