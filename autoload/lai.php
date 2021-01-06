@@ -514,24 +514,23 @@
                     $err_code = 1;
                 });
                 preg_match_all('/(?=!)(!{{\s*([^}]*)\s*}})|({{\s*([^}]*)\s*}})/', $temp[$params['for1']], $matches);
-                for($i = 0; $i < count($matches[0]); $i++){
+                for($params['for2'] = 0; $params['for2'] < count($matches[0]); $params['for2']++){
                     $err_code = 0;
-
-                    if($matches[1][$i]){
+                    if($matches[1][$params['for2']]){
                         try {
-                            $syntax = "return {$matches[2][$i]};";
+                            $syntax = "return {$matches[2][$params['for2']]};";
                             $res = eval($syntax);
                             if($err_code === 0){
-                                $temp[$params['for1']] = str_replace($matches[1][$i], $res, $temp[$params['for1']]);
+                                $temp[$params['for1']] = str_replace($matches[1][$params['for2']], $res, $temp[$params['for1']]);
                             }
                         } catch (\Throwable $th) {
                         }
                     }else{
                         try {
-                            $syntax = "return {$matches[4][$i]};";
+                            $syntax = "return {$matches[4][$params['for2']]};";
                             $res = eval($syntax);
                             if($err_code === 0){
-                                $temp[$params['for1']] = str_replace($matches[3][$i], htmlspecialchars($res), $temp[$params['for1']]);
+                                $temp[$params['for1']] = str_replace($matches[3][$params['for2']], htmlspecialchars($res), $temp[$params['for1']]);
                             }
                         } catch (\Throwable $th) {
                         }
