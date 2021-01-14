@@ -9,7 +9,7 @@
     $current_dir = str_replace('\\','/',getcwd());
     if(PATH_SEPARATOR==':'){
         // Linux
-        $url = explode('/',LINUX_HOME.$_SERVER['REQUEST_URI']);
+        $url = explode('/',UNIX_HOME.$_SERVER['REQUEST_URI']);
     }else{
         // Windows
         $url = explode('/',$_SERVER['REQUEST_URI']);

@@ -1,6 +1,6 @@
 <?php
 
-define('LINUX_HOME', '/home/...');
+define('UNIX_HOME', '');
 define('HOST','localhost');
 define('PORT', '8000');
 
