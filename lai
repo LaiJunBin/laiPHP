@@ -110,12 +110,12 @@
     $command->create('/^serv$/', function(){
         $host = HOST;
         $port = PORT;
-        spawnBackgroundProcess("PHP -S {$host}:{$port} public/index.php");
+        spawnBackgroundProcess("php -S {$host}:{$port} public/index.php");
     });
 
     $command->create('/^serv --port=(\S+)$/', function($port){
         $host = HOST;
-        spawnBackgroundProcess("PHP -S {$host}:{$port} public/index.php");
+        spawnBackgroundProcess("php -S {$host}:{$port} public/index.php");
     });
 
     $command->create('/^make:controller (\S+)$/', function($filename){
