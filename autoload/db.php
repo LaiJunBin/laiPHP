@@ -94,7 +94,9 @@
             $table = self::get_table();
             if($params instanceof Collection)
                 $params = $params->to_array();
-
+            if($conditions instanceof Collection){
+                $conditions = $conditions->to_array();
+            }
             $keys = implode(',',array_map(function($key){
                 return $key.'=:'.$key;
             },keys($params)));
@@ -113,7 +115,9 @@
         }
 
         static function deleteStatic($conditions){
-
+            if($conditions instanceof Collection){
+                $conditions = $conditions->to_array();
+            }
             $table = self::get_table();
 
             $conditionKeys = implode(' and ',array_map(function($key){
@@ -129,6 +133,9 @@
             if(is_array($index)){
                 $orderby = $index;
                 $index = null;
+            }
+            if($orderby instanceof Collection){
+                $orderby = $orderby->to_array();
             }
             $class = get_called_class();
             $results = self::select([],$orderby)->fetchAll(PDO::FETCH_ASSOC);
@@ -150,7 +157,9 @@
         }
 
         static function findStatic($conditions,$orderby=null){
-
+            if($conditions instanceof Collection){
+                $conditions = $conditions->to_array();
+            }
             if(!is_array($conditions)){
                 $conditions = [
                     static::$id => $conditions
@@ -166,6 +175,12 @@
         }
 
         static function findall($conditions,$orderby=null){
+            if($conditions instanceof Collection){
+                $conditions = $conditions->to_array();
+            }
+            if($orderby instanceof Collection){
+                $orderby = $orderby->to_array();
+            }
             $class = get_called_class();
             $results = self::select($conditions,$orderby)->fetchAll(PDO::FETCH_ASSOC);
             $array = [];
@@ -182,6 +197,12 @@
         }
 
         static function select($conditions,$orderby=null){
+            if($conditions instanceof Collection){
+                $conditions = $conditions->to_array();
+            }
+            if($orderby instanceof Collection){
+                $orderby = $orderby->to_array();
+            }
 
             $table = self::get_table();
             $sql = "select * from {$table}";
