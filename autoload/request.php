@@ -17,10 +17,15 @@
             else if(containsKey($this->__params, $name))
                 return $this->__params[$name];
 
-            user_error("Invalid property: " . __CLASS__ . "->$name");
+            return null;
+            // user_error("Invalid property: " . __CLASS__ . "->$name");
         }
         function __set($name, $value) {
-            user_error("Can't set property: " . __CLASS__ . "->$name");
+            if(!containsKey($this->__params, $name)){
+                user_error("Can't set property: " . __CLASS__ . "->$name");
+            }else{
+                $this->$name = $value;
+            }
         }
 
         public function __construct($params=[]) {
@@ -28,6 +33,21 @@
             $this->__method = $_SERVER['REQUEST_METHOD'];
             $this->__uri = $_SERVER['REQUEST_URI'];
             $this->__params = $params;
+            foreach($params as $k => $v){
+                $this->$k = $v;
+            }
+        }
+
+        public function status(){
+            return $this->__status;
+        }
+
+        public function uri(){
+            return $this->__uri;
+        }
+
+        public function method(){
+            return $this->__method;
         }
 
         public function all($keys=null, $default=null){
