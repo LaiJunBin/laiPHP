@@ -8,10 +8,11 @@
     // Example:
     Route::get('/test', 'MainController@test');
 
-    Route::get('/','MainController@index');
-
     Route::group('/api', function(){
         Route::middleware('auth', function(){
             Route::get('/', 'MainController@api');
         });
     });
+
+    Route::get('/','MainController@index');
+    Route::get('/{id}','MainController@index');

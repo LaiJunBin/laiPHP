@@ -1,7 +1,9 @@
 <?php
 
-    function index(){
-        return Response()->view('welcome');
+    function index(Request $request){
+        return Response()->view('welcome', [
+            'id' => $request->id
+        ]);
     }
 
     function test(){
