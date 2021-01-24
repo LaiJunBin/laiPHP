@@ -40,6 +40,14 @@
                 session()->forget('errors');
             }
 
+            if(session()->has('withdata')){
+                foreach(session()->withdata as $k => $v){
+                    $params[$k] = $v;
+                }
+                session()->forget('withdata');
+            }
+
+
             if(count($filenames) == 0){
                 $filenames = glob("./app/views/{$file}.php");
                 if(count($filenames) == 0){
@@ -82,6 +90,11 @@
 
         public function redirectRoute($route_name, $params=[]){
             return $this->redirect(route($route_name, $params, false));
+        }
+
+        public function with($params=[]){
+            session()->put('withdata', $params);
+            return $this;
         }
 
         public function withInput(Request $request){
