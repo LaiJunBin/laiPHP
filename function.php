@@ -65,6 +65,19 @@
                 }
             }
 
+            if($param instanceof Request){
+                $object_depth++;
+                foreach(get_class_methods($param) as $method){
+                    try {
+                        if(mb_strpos($method, 'on') === 0 || mb_strpos($method, '__') === 0)
+                            continue;
+
+                        $custom_params[$method.'()'] = call_user_func([$param, $method]);
+                    } catch (\Throwable $th) {
+                    }
+                }
+            }
+
             $count += count($custom_params);
 
             echo '<span style="'.$dd_options['styles']['object'].'">';
