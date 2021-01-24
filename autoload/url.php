@@ -23,9 +23,9 @@
             }
 
             $this->url = '/'.$path;
-            // if($this->url === $_SERVER['REQUEST_URI'] || $this->url.'/' === $_SERVER['REQUEST_URI']){
-            //     $this->url .= '/';
-            // }
+            if($this->url === $_SERVER['REQUEST_URI'] || $this->url.'/' === $_SERVER['REQUEST_URI']){
+                $this->url .= '/';
+            }
         }
 
         public function current(){
