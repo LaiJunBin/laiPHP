@@ -20,11 +20,12 @@
                 $path = explode('/', ('/'.implode('/', $except_url).'/'.$path));
                 clearEmpty($path);
                 $path = implode('/', $path);
-                $this->url = '/'.$path;
-            }else{
-                $this->url = $path;
             }
 
+            $this->url = '/'.$path;
+            // if($this->url === $_SERVER['REQUEST_URI'] || $this->url.'/' === $_SERVER['REQUEST_URI']){
+            //     $this->url .= '/';
+            // }
         }
 
         public function current(){
