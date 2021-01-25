@@ -30,7 +30,7 @@
         }
 
         private function updateObject($params){
-            static::update($params, [static::$id => $this->{static::$id}]);
+            static::__callStatic('update', [$params, [static::$id => $this->{static::$id}]]);
             foreach($params as $k => $v){
                 $this->$k = $v;
             }
