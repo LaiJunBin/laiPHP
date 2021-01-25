@@ -184,7 +184,7 @@
                 'syntax'
             ];
             foreach(get_defined_vars() as $key => $value){
-                if(!in_array($key, $ignore)){
+                if(!in_array($key, $ignore) && !array_key_exists($key, $params)){
                     $params[$key] = $value;
                 }
             }
