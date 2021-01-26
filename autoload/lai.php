@@ -165,7 +165,7 @@
 
             for($i = 0; $i < count($html_array); $i++){
                 $html = trim($html_array[$i]);
-                if(strpos($html, '#') === 0){
+                if(strpos($html, '#') === 0 && mb_strlen(mb_substr($html, 1)) > 0){
                     $syntax = '@'.mb_substr($html, 1).';';
                     try {
                         $err_code = 0;
