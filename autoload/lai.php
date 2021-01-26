@@ -156,6 +156,8 @@
             set_error_handler(function ($errNo, $errStr) use(&$err_code){
                 if (strpos($errStr, 'Use of undefined constant ') === 0) {
                     $err_code = 1;
+                }else if(strpos($errStr, 'Constants may only evaluate to scalar') === 0){
+                    $err_code = 2;
                 } else {
                     return false;
                 }
@@ -168,9 +170,24 @@
                     try {
                         $err_code = 0;
                         eval($syntax);
-                        if($err_code === 0)
-                            $html_array[$i] = '';
+                        if($err_code === 1){
+                            trigger_error('Parse error: '.$html_array[$i]);
+                        }
+                        $html_array[$i] = '';
+
+                        if($err_code === 2 && strpos(trim(mb_substr($html, 1)), 'define') === 0){
+                            $pattern = "/define\('?\s*([^',\s]+)'?\s*,\s*([^;]+)\)/";
+                            preg_match($pattern, $syntax, $match);
+                            try {
+                                $tmp ='return '.$match[2].'->to_array();';
+                                $result = eval($tmp);
+                                define($match[1], $result);
+                            } catch (\Throwable $th) {
+                                trigger_error($syntax.' Constants may only evaluate to scalar values, arrays or resources or collections.', E_USER_WARNING);
+                            }
+                        }
                     } catch (\Throwable $th) {
+                        trigger_error('Parse error: '.$html_array[$i]);
                     }
                 }
             }
