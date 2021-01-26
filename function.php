@@ -415,3 +415,11 @@
      function session(){
          return new Session();
      }
+
+     function array_to_model($array, $model){
+         return new $model($array);
+     }
+
+     function array_to_models($arrays, $model){
+         return new Collection(array_map(fn($array) => array_to_model($array, $model), $arrays));
+     }
