@@ -1,8 +1,12 @@
 <?php
+    foreach(glob('./autoload/lib/*.php') as $file){
+        include($file);
+    }
+
     include('env.php');
     include('function.php');
 
-    foreach(glob('./autoload/*') as $file){
+    foreach(glob('./autoload/*.php') as $file){
         include($file);
     }
 
