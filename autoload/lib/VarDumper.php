@@ -57,6 +57,15 @@
                     echo str_repeat(' ', $tab).'{ <br>';
                 }
 
+                if($var instanceof __PHP_Incomplete_Class){
+                    foreach($var as $key => $value){
+                        echo str_repeat(' ', $tab+self::$options['tab_size']) . '<span style="'.self::$options['styles']['index'].'">["'.$key. '"]</span> => ';
+                        self::dumpVar($value, $tab+self::$options['tab_size'], $object_depth, true);
+                    }
+                    echo '}';
+                    return;
+                }
+
                 foreach($properties as $property){
                     $property->setAccessible(true);
                     $value = $property->getValue($var);
