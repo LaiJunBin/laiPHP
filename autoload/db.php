@@ -29,14 +29,14 @@
             }
         }
 
-        private function updateObject($params){
+        public function update($params){
             static::__callStatic('update', [$params, [static::$id => $this->{static::$id}]]);
             foreach($params as $k => $v){
                 $this->$k = $v;
             }
         }
 
-        private function deleteObject(){
+        public function delete(){
             $this->instance = false;
             call_user_func([$this, 'onDelete']);
             static::__callStatic('delete', [[static::$id => $this->{static::$id}]]);
@@ -89,7 +89,7 @@
             }
         }
 
-        static function updateStatic($params,$conditions){
+        private static function updateStatic($params,$conditions){
 
             $table = self::get_table();
             if($params instanceof Collection)
@@ -114,7 +114,7 @@
             self::bindAll($sql,array_merge($params,$conditions));
         }
 
-        static function deleteStatic($conditions){
+        private static function deleteStatic($conditions){
             if($conditions instanceof Collection){
                 $conditions = $conditions->to_array();
             }
@@ -152,11 +152,11 @@
             }
         }
 
-        static function countStatic(){
+        private static function countStatic(){
             return self::get()->count();
         }
 
-        static function findStatic($conditions,$orderby=null){
+        private static function findStatic($conditions,$orderby=null){
             if($conditions instanceof Collection){
                 $conditions = $conditions->to_array();
             }
@@ -225,7 +225,7 @@
             return self::bindAll($sql,$conditions);
         }
 
-        static function bindAll($sql,$params){
+        private static function bindAll($sql,$params){
             self::connection_db();
 
             $query = self::$db->prepare($sql);
@@ -235,8 +235,7 @@
             $query->execute();
 
             if($query->errorinfo()[2] != ""){
-                echo $sql.'<br>'.$query->errorinfo()[2];
-                exit;
+                throw new Exception($sql.'<br>'.$query->errorinfo()[2]);
             }
 
             return $query;
@@ -254,8 +253,7 @@
             $query->execute();
 
             if($query->errorinfo()[2] != ""){
-                echo $sql.'<br>'.$query->errorinfo()[2];
-                exit;
+                throw new Exception($sql.'<br>'.$query->errorinfo()[2]);
             }
 
             return $query;
@@ -317,5 +315,15 @@
                 'through' => true,
                 'data' => @$table::findall([$foreign_key => $this->$id])
             ]);
+        }
+
+        public static function beginTransaction(){
+            self::connection_db();
+            self::$db->beginTransaction();
+        }
+
+        public static function rollBack(){
+            self::connection_db();
+            self::$db->rollBack();
         }
     }
