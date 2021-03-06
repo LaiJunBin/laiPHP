@@ -68,6 +68,10 @@
             }
         }
 
+        public function add($item){
+            $this->items[] = $item;
+        }
+
         // public function get($index=null){
         //     if($index===null)
         //         return $this;
@@ -84,7 +88,7 @@
         }
 
         public function last($default=null){
-            return $this->items[count($this->items)] ?? $default;
+            return $this->items[count($this->items) - 1] ?? $default;
         }
 
         public function countItems(){
