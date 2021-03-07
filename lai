@@ -21,10 +21,10 @@
             $this->commands[$command] = $action;
         }
 
-        public function execute(){
+        public function execute($command=null){
             global $argv;
 
-            $command = implode(' ', array_slice($argv, 1));
+            $command = $command ?? implode(' ', array_slice($argv, 1));
 
             foreach($this->commands as $pattern => $action){
                 if(preg_match($pattern, $command, $matches)){
@@ -39,6 +39,87 @@
             echo 'error: Unknown command or arguments '.$command;
         }
 
+        public function migrate($type, $argument=null){
+            if($type === 'up'){
+                $migrations = glob('database/migrations/*.php');
+            
+                require_once('autoload/collection.php');
+                require_once('autoload/db.php');
+                require_once('autoload/migration.php');
+                require_once('autoload/schema.php');
+                require_once('autoload/blueprint.php');
+                
+                foreach($migrations as $migration){
+                    $fp = fopen($migration, 'r');
+                    $class = $buffer = '';
+                    $i = 0;
+                    while (!$class) {
+                        if (feof($fp)) break;
+                        $buffer .= fread($fp, 512);
+                        $tokens = token_get_all($buffer);
+                        if (strpos($buffer, '{') === false) continue;
+                        for (;$i<count($tokens);$i++) {
+                            if ($tokens[$i][0] === T_CLASS) {
+                                for ($j=$i+1;$j<count($tokens);$j++) {
+                                    if ($tokens[$j] === '{') {
+                                        $class = $tokens[$i+2][1];
+                                    }
+                                }
+                            }
+                        }
+                    }
+        
+                    include_once($migration);
+        
+                    $instance = new $class;
+                    $instance->up();
+                    echo 'Migrated up '. $class . '.' . PHP_EOL;   
+                }
+        
+                if($argument === '--seed'){
+                    global $command;
+                    $command->execute('db:seed');
+                }
+            } else if ($type === 'fresh'){
+                $migrations = glob('database/migrations/*.php');
+        
+                require_once('autoload/collection.php');
+                require_once('autoload/db.php');
+                require_once('autoload/migration.php');
+                require_once('autoload/schema.php');
+                require_once('autoload/blueprint.php');
+        
+                foreach($migrations as $migration){
+                    $fp = fopen($migration, 'r');
+                    $class = $buffer = '';
+                    $i = 0;
+                    while (!$class) {
+                        if (feof($fp)) break;
+                        $buffer .= fread($fp, 512);
+                        $tokens = token_get_all($buffer);
+                        if (strpos($buffer, '{') === false) continue;
+                        for (;$i<count($tokens);$i++) {
+                            if ($tokens[$i][0] === T_CLASS) {
+                                for ($j=$i+1;$j<count($tokens);$j++) {
+                                    if ($tokens[$j] === '{') {
+                                        $class = $tokens[$i+2][1];
+                                    }
+                                }
+                            }
+                        }
+                    }
+        
+                    include_once($migration);
+        
+                    $instance = new $class;
+                    $instance->down();
+                    echo 'Migrated rollback '. $class . '.' . PHP_EOL;
+                }
+            } else if ($type === 'refresh'){
+                $this->migrate('fresh', $argument);
+                $this->migrate('up', $argument);
+            }
+        }
     };
 
     //Help...
@@ -110,12 +191,12 @@
     $command->create('/^serv$/', function(){
         $host = HOST;
         $port = PORT;
-        spawnBackgroundProcess("php -S {$host}:{$port} public/index.php");
+        spawnBackgroundProcess("php8 -S {$host}:{$port} public/index.php");
     });
 
     $command->create('/^serv --port=(\S+)$/', function($port){
         $host = HOST;
-        spawnBackgroundProcess("php -S {$host}:{$port} public/index.php");
+        spawnBackgroundProcess("php8 -S {$host}:{$port} public/index.php");
     });
 
     $command->create('/^make:controller (\S+)$/', function($filename){
@@ -337,6 +418,92 @@
         }
         echo '+-'.str_repeat('-', 10).'+-'.str_repeat('-', max(6, $maxlens['url']+3)).'+-'.str_repeat('-', max(10, $maxlens['action']+3)).'+-'.str_repeat('-', max(13, $maxlens['middleware']+3)).'+-'.str_repeat('-', max(13, $maxlens['name']+3)).'+'.PHP_EOL;
 
+    });
+
+    $command->create('/^migrate (\S+)$/', function($argument) use($command){
+        $command->migrate('up', $argument);
+    });
+
+    $command->create('/^migrate$/', function() use($command){
+        $command->migrate('up');
+    });
+
+    $command->create('/^migrate:fresh$/', function() use($command){
+        $command->migrate('fresh');
+    });
+
+    $command->create('/^migrate:refresh$/', function() use($command){
+        $command->migrate('refresh');
+    });
+
+    $command->create('/^migrate:refresh (\S+)$/', function($argument) use($command){
+        $command->migrate('refresh', $argument);
+    });
+
+    $command->create('/^db:seed$/', function(){
+        $seeders = glob('database/seeders/*.php');
+        
+        require_once('function.php');
+        require_once('autoload/seeder.php');
+        require_once('autoload/collection.php');
+        require_once('autoload/db.php');
+
+        foreach($seeders as $seeder){
+            include_once($seeder);
+        }
+
+        $instance = new DatabaseSeeder();
+        $instance->run();
+    });
+
+    $command->create('/^make:migrations (\S+)$/', function($filename){
+        $base_path = './database/migrations/';
+        preg_match('/create_(\S+)_table/', $filename, $match);
+        $class = implode('',array_map(fn($x) => ucfirst($x), explode('_', $filename)));
+        $filename = date('Y_m_d_His_').$filename;
+    
+        $filepath = get_file_full_path($base_path, $filename);
+        if(file_exists($filepath)){
+            error_log('error: file '.$filepath.' exists.');
+            exit;
+        }
+
+        if(count($match) === 2){
+            $table = $match[1];
+            $samplefile = 'samplefiles/migrations-table.php';
+            if(!file_exists($samplefile))
+                return false;
+
+            $file = fopen($filepath, 'w');
+            fwrite($file, sprintf(file_get_contents($samplefile), $class, $table, $table));
+            fclose($file);
+        } else {
+            $samplefile = 'samplefiles/migrations.php';
+            if(!file_exists($samplefile))
+                return false;
+
+            $file = fopen($filepath, 'w');
+            fwrite($file, sprintf(file_get_contents($samplefile), $class));
+            fclose($file);
+        }
+    });
+
+    $command->create('/^make:seeder (\S+)$/', function($filename){
+        $base_path = './database/seeders/';
+        $filepath = get_file_full_path($base_path, $filename);
+        if(file_exists($filepath)){
+            error_log('error: file '.$filepath.' exists.');
+            exit;
+        }
+
+        $samplefile = 'samplefiles/seeder.php';
+
+        if(!file_exists($samplefile))
+            return false;
+
+        $file = fopen($filepath, 'w');
+        fwrite($file, sprintf(file_get_contents($samplefile), ucfirst($filename)));
+        fclose($file);
     });
 
     $command->execute();
