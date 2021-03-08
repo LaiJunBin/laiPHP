@@ -1,5 +1,7 @@
 <?php
 
+define('PHP_CMD', 'php');
+
 define('UNIX_HOME', '');
 define('HOST','localhost');
 define('PORT', '8000');

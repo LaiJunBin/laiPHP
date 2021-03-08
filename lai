@@ -42,13 +42,13 @@
         public function migrate($type, $argument=null){
             if($type === 'up'){
                 $migrations = glob('database/migrations/*.php');
-            
+
                 require_once('autoload/collection.php');
                 require_once('autoload/db.php');
                 require_once('autoload/migration.php');
                 require_once('autoload/schema.php');
                 require_once('autoload/blueprint.php');
-                
+
                 foreach($migrations as $migration){
                     $fp = fopen($migration, 'r');
                     $class = $buffer = '';
@@ -68,27 +68,27 @@
                             }
                         }
                     }
-        
+
                     include_once($migration);
-        
+
                     $instance = new $class;
                     $instance->up();
-                    echo 'Migrated up '. $class . '.' . PHP_EOL;   
+                    echo 'Migrated up '. $class . '.' . PHP_EOL;
                 }
-        
+
                 if($argument === '--seed'){
                     global $command;
                     $command->execute('db:seed');
                 }
             } else if ($type === 'fresh'){
                 $migrations = glob('database/migrations/*.php');
-        
+
                 require_once('autoload/collection.php');
                 require_once('autoload/db.php');
                 require_once('autoload/migration.php');
                 require_once('autoload/schema.php');
                 require_once('autoload/blueprint.php');
-        
+
                 foreach($migrations as $migration){
                     $fp = fopen($migration, 'r');
                     $class = $buffer = '';
@@ -108,9 +108,9 @@
                             }
                         }
                     }
-        
+
                     include_once($migration);
-        
+
                     $instance = new $class;
                     $instance->down();
                     echo 'Migrated rollback '. $class . '.' . PHP_EOL;
@@ -189,14 +189,16 @@
 
     //commands..
     $command->create('/^serv$/', function(){
+        $php = @constant('PHP_CMD') ?? 'php';
         $host = HOST;
         $port = PORT;
-        spawnBackgroundProcess("php8 -S {$host}:{$port} public/index.php");
+        spawnBackgroundProcess("{$php} -S {$host}:{$port} public/index.php");
     });
 
     $command->create('/^serv --port=(\S+)$/', function($port){
+        $php = @constant('PHP_CMD') ?? 'php';
         $host = HOST;
-        spawnBackgroundProcess("php8 -S {$host}:{$port} public/index.php");
+        spawnBackgroundProcess("{$php} -S {$host}:{$port} public/index.php");
     });
 
     $command->create('/^make:controller (\S+)$/', function($filename){
@@ -442,7 +444,7 @@
 
     $command->create('/^db:seed$/', function(){
         $seeders = glob('database/seeders/*.php');
-        
+
         require_once('function.php');
         require_once('autoload/seeder.php');
         require_once('autoload/collection.php');
@@ -461,7 +463,7 @@
         preg_match('/create_(\S+)_table/', $filename, $match);
         $class = implode('',array_map(fn($x) => ucfirst($x), explode('_', $filename)));
         $filename = date('Y_m_d_His_').$filename;
-    
+
         $filepath = get_file_full_path($base_path, $filename);
         if(file_exists($filepath)){
             error_log('error: file '.$filepath.' exists.');
