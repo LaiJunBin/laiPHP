@@ -108,6 +108,7 @@ withErrors(errors=[])     | 可在模板引擎中取得$errors變數
 > collection.php
 
 Collection 物件
+
 Method              | Description
 --------------|------
 clear()      | 清除資料
@@ -133,6 +134,7 @@ join(glup)        | join資料
 > session.php
 
 Session 物件
+
 Method              | Description
 --------------|------
 has(name)         | session是否存在，name階層以.分隔
