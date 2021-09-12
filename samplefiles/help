@@ -4,13 +4,20 @@ Options:
     --help  顯示特定指令的幫助訊息
 
 Available commands:
-    serv    啟動測試伺服器
-    help    顯示此訊息(也是預設的命令)
-
-Make:
-    make:controller     建立控制器
-    make:middleware     建立中介層
-    make:model          建立模型
-
-Route:
-    route:list          顯示所有路由
+    Common
+        serv    啟動測試伺服器
+        help    顯示此訊息(也是預設的命令)
+    DB
+        db:seed     執行 seed
+    Make:
+        make:controller     建立控制器
+        make:middleware     建立中介層
+        make:migration      建立 Migration
+        make:model          建立模型
+        make:seeder         建立 Seeder
+    Migrate
+        migrate                 建立你所定義的table
+        migrate:fresh           刪除所有定義的table
+        migrate:refresh         相當於 migrate:fresh + migrate
+    Route:
+        route:list          顯示所有路由

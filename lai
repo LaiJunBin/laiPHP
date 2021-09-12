@@ -170,13 +170,47 @@
     });
 
     $command->create('/^make:middleware --help$/', function(){
-        echo "php lai make:model [arguments] [options]".PHP_EOL;
+        echo "php lai make:middleware [arguments] [options]".PHP_EOL;
         echo "建立中介層".PHP_EOL;
         echo "Arguments:".PHP_EOL;
         echo "    產生的中介層名稱".PHP_EOL;
         echo "Options:".PHP_EOL;
         echo "    --name={name}    自動將該中介層以{name}註冊".PHP_EOL;
         echo "    default:         僅產生中介層".PHP_EOL;
+        exit;
+    });
+
+    $command->create('/^make:migration --help$/', function(){
+        echo "php lai make:migration [arguments]".PHP_EOL;
+        echo "建立Migration".PHP_EOL;
+        echo "Arguments:".PHP_EOL;
+        echo "    產生的Migration名稱".PHP_EOL;
+        exit;
+    });
+
+    $command->create('/^make:seeder --help$/', function(){
+        echo "php lai make:seeder [arguments]".PHP_EOL;
+        echo "建立Seeder".PHP_EOL;
+        echo "Arguments:".PHP_EOL;
+        echo "    產生的Seeder名稱".PHP_EOL;
+        exit;
+    });
+
+    $command->create('/^migrate --help$/', function(){
+        echo "php lai migrate [options]".PHP_EOL;
+        echo "執行 migrate".PHP_EOL;
+        echo "Options:".PHP_EOL;
+        echo "    --seed                        完成後執行seed".PHP_EOL;
+        echo "    default:                      僅執行".PHP_EOL;
+        exit;
+    });
+
+    $command->create('/^migrate:refresh --help$/', function(){
+        echo "php lai migrate:refresh [options]".PHP_EOL;
+        echo "相當於 migrate:fresh + migrate".PHP_EOL;
+        echo "Options:".PHP_EOL;
+        echo "    --seed                        完成後執行seed".PHP_EOL;
+        echo "    default:                      僅執行".PHP_EOL;
         exit;
     });
 
@@ -458,7 +492,7 @@
         $instance->run();
     });
 
-    $command->create('/^make:migrations (\S+)$/', function($filename){
+    $command->create('/^make:migration (\S+)$/', function($filename){
         $base_path = './database/migrations/';
         preg_match('/create_(\S+)_table/', $filename, $match);
         $class = implode('',array_map(fn($x) => ucfirst($x), explode('_', $filename)));
