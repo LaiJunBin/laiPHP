@@ -12,6 +12,10 @@
    |
    |___<autoload>
    |
+   |___<database>
+   |     |___ <migrations>
+   |     |___ <seeders>
+   |
    |___<public>
    |
    |___<samplefiles>
@@ -27,6 +31,10 @@ app/middleware：存放中介層
 app/views：存放畫面，有提供模板引擎(.lai.php)
 
 autoload：自動載入的類別
+
+database/migrations: 存放 Migration
+
+database/seeders: 存放 Seeder
 
 public：對外公開的檔案，可以在外部直接輸入網址讀取
 
@@ -70,6 +78,8 @@ assets_path(path)       | 取得assets path
 route(name, params=[])     | 取得特定名稱路由的url，可帶入參數
 include_model(model)           | 引入 Model
 include_models(models=[])           | 引入多個Model
+array_to_model($array, $model)      | 將 array 轉換為 model， 相當於 new $model($array)
+array_to_models($arrays, $model)    | 將二維陣列中每個array轉換為model，並傳回 Collection 集合
 session()                     | 取得 session 物件
 
 
@@ -170,7 +180,13 @@ Command                  | Description
 php lai serv           | 啟動測試伺服器
 php lai make:controller | 產生控制器(controller)
 php lai make:middleware | 產生中介層(middleware)
+php lai make:migration | 產生migration
 php lai make:model      | 產生模型(model)
+php lai make:seeder | 產生seeder
+php lai migrate                | 建立你所定義的table
+php lai migrate:fresh          | 刪除所有定義的table
+php lai migrate:refresh        | 相當於 migrate:fresh + migrate
+php lai db:seed                | 執行 seed
 php lai route:list      | 顯示當前所有路由
 php lai help            | 幫助訊息
 
