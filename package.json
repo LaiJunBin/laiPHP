@@ -6,8 +6,12 @@
         "build": "webpack --mode=production"
     },
     "dependencies": {
+        "animejs": "^3.2.1",
+        "aos": "^2.3.4",
         "bootstrap": "^5.2.1",
         "chart.js": "^3.9.1",
+        "gsap": "^3.11.2",
+        "three": "^0.145.0",
         "vue": "^2.7.10",
         "wow.js": "^1.2.2"
     },
